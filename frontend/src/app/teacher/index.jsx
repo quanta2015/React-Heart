@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Statistic, Progress, Table, Tag, Select, Space, Spin, message } from "antd";
+import React, { useState, useEffect, useMemo } from "react";
+import { Card, Row, Col, Progress, Table, Tag, Select, Space, Spin } from "antd";
 import { get } from "@/util/request";
 import * as urls from "@/constant/urls";
 import s from "./index.module.less";
-
-const { Option } = Select;
+import GradeStackBar from "./chart/GradeStackBar";
+import ClassStackBar from "./chart/ClassStackBar";
+import RadarChart from "./chart/RadarChart";
 
 const Teacher = () => {
   const [loading, setLoading] = useState(true);
@@ -33,7 +34,7 @@ const Teacher = () => {
     try {
       const res = await get(urls.API_TEACHER_STATS_BY_GRADE);
       if (res.code === 200) {
-        setGradeStats(res.data);
+        setGradeStats(res.data || []);
       }
     } catch (err) {
       console.error("获取年级统计失败:", err);
@@ -47,7 +48,7 @@ const Teacher = () => {
 
       const res = await get(urls.API_TEACHER_STATS_BY_CLASS, params);
       if (res.code === 200) {
-        setClassStats(res.data);
+        setClassStats(res.data || []);
       }
     } catch (err) {
       console.error("获取班级统计失败:", err);
@@ -62,7 +63,7 @@ const Teacher = () => {
 
       const res = await get(urls.API_TEACHER_STUDENTS, params);
       if (res.code === 200) {
-        setStudents(res.data);
+        setStudents(res.data || []);
       }
     } catch (err) {
       console.error("获取学生列表失败:", err);
@@ -75,8 +76,29 @@ const Teacher = () => {
       await Promise.all([fetchOverview(), fetchGradeStats(), fetchClassStats(), fetchStudents()]);
       setLoading(false);
     };
+
     fetchData();
   }, [filters]);
+
+  // 动态生成年级下拉选项
+  const gradeOptions = useMemo(() => {
+    return [...new Set((gradeStats || []).map((item) => item?.grade).filter((v) => v !== undefined && v !== null))]
+      .sort((a, b) => a - b)
+      .map((grade) => ({
+        label: `${grade} 年级`,
+        value: grade
+      }));
+  }, [gradeStats]);
+
+  // 动态生成班级下拉选项
+  const classOptions = useMemo(() => {
+    return [...new Set((classStats || []).map((item) => item?.class_no).filter((v) => v !== undefined && v !== null))]
+      .sort((a, b) => a - b)
+      .map((classNo) => ({
+        label: `${classNo}班`,
+        value: classNo
+      }));
+  }, [classStats]);
 
   const riskLevelColors = {
     R0: "#52c41a",
@@ -147,162 +169,123 @@ const Teacher = () => {
 
   return (
     <div className={s.teacher}>
-      {/* 筛选器 */}
       <Card className={s.filters}>
         <Space>
           <span>筛选：</span>
+
           <Select
-            style={{ width: 120 }}
+            style={{ width: 140 }}
             placeholder="年级"
-            onChange={(value) => setFilters({ ...filters, grade: value, class_no: undefined })}
             value={filters.grade}
             allowClear
-          >
-            <Option value={7}>7 年级</Option>
-            <Option value={8}>8 年级</Option>
-            <Option value={9}>9 年级</Option>
-          </Select>
+            options={gradeOptions}
+            onChange={(value) =>
+              setFilters((prev) => ({
+                ...prev,
+                grade: value,
+                class_no: undefined
+              }))
+            }
+          />
+
           <Select
-            style={{ width: 120 }}
+            style={{ width: 140 }}
             placeholder="班级"
-            onChange={(value) => setFilters({ ...filters, class_no: value })}
             value={filters.class_no}
             allowClear
-            disabled={!filters.grade}
-          >
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-              <Option key={n} value={n}>
-                {n}班
-              </Option>
-            ))}
-          </Select>
+            options={classOptions}
+            onChange={(value) =>
+              setFilters((prev) => ({
+                ...prev,
+                class_no: value
+              }))
+            }
+            disabled={!filters.grade || classOptions.length === 0}
+          />
         </Space>
       </Card>
 
-      {/* 概览统计 */}
       {overview && (
-        <Row gutter={16} className={s.overview}>
-          <Col span={6}>
-            <Card>
-              <Statistic
-                title="完成率"
-                value={parseFloat(overview.completion.rate) * 100}
-                suffix="%"
-                valueStyle={{ color: "#1890ff" }}
-              />
-              <Progress
-                percent={parseFloat(overview.completion.rate) * 100}
-                strokeColor={{ "0%": "#108ee9", "100%": "#87d068" }}
-                showInfo={false}
-                style={{ marginTop: 8 }}
-              />
-              <div className={s.subtext}>
-                已完成 {overview.completion.finished} / 总计 {overview.completion.total_students}
-              </div>
-            </Card>
-          </Col>
-          <Col span={18}>
-            <Card title="风险等级分布">
-              <Row gutter={16}>
-                {["R0", "R1", "R2", "R3"].map((level) => (
-                  <Col span={6} key={level}>
-                    <div className={s.riskItem}>
-                      <Tag color={riskLevelColors[level]} style={{ fontSize: 14, padding: "4px 12px" }}>
-                        {riskLevelLabels[level]}
-                      </Tag>
-                      <div className={s.riskCount}>{overview.risk_dist[level] || 0}人</div>
-                    </div>
-                  </Col>
-                ))}
-              </Row>
-            </Card>
-          </Col>
-        </Row>
-      )}
+        <Card className={s.overview}>
+          <Row gutter={16} align="stretch">
+            {/* 左侧：完成率 */}
+            <Col span={6}>
+              <div className={s.overviewLeft}>
+                <div className={s.overviewTitle}>完成情况</div>
 
-      {/* 领域平均分 */}
-      {overview && overview.domain_avg && (
-        <Card title="各领域平均分" className={s.domains}>
-          <Row gutter={16}>
-            {Object.entries(overview.domain_avg).map(([domain, score]) => (
-              <Col span={4} key={domain}>
-                <div className={s.domainItem}>
-                  <div className={s.domainName}>{domain}</div>
+                <div className={s.completeCircle}>
                   <Progress
-                    type="dashboard"
-                    percent={parseFloat(score) * 20}
-                    strokeColor={parseFloat(score) > 0.6 ? "#f5222d" : parseFloat(score) > 0.4 ? "#fa8c16" : "#52c41a"}
-                    format={() => score}
+                    type="circle"
+                    percent={parseFloat(overview.completion.rate) * 100}
+                    strokeColor="#1890ff"
+                    width={120}
                   />
                 </div>
-              </Col>
-            ))}
+
+                <div className={s.completeStats}>
+                  <div className={s.statItem}>
+                    <div className={s.statValue}>{overview.completion.finished}</div>
+                    <div className={s.statLabel}>已完成</div>
+                  </div>
+
+                  <div className={s.statDivider}></div>
+
+                  <div className={s.statItem}>
+                    <div className={s.statValue}>{overview.completion.total_students}</div>
+                    <div className={s.statLabel}>总人数</div>
+                  </div>
+                </div>
+              </div>
+            </Col>
+
+            {/* 中间：风险等级 */}
+            <Col span={10}>
+              <div className={s.overviewCenter}>
+                <div className={s.overviewTitle}>风险等级分布</div>
+                <Row gutter={[12, 12]}>
+                  {["R0", "R1", "R2", "R3"].map((level) => (
+                    <Col span={12} key={level}>
+                      <div className={s.riskItem}>
+                        <Tag color={riskLevelColors[level]} style={{ fontSize: 14, padding: "4px 12px" }}>
+                          {riskLevelLabels[level]}
+                        </Tag>
+                        <div className={s.riskCount}>{overview.risk_dist?.[level] || 0}人</div>
+                      </div>
+                    </Col>
+                  ))}
+                </Row>
+              </div>
+            </Col>
+
+            {/* 右侧：雷达图 */}
+            <Col span={8}>
+              <div className={s.overviewRight}>
+                <div className={s.overviewTitle}>领域分布雷达图</div>
+                <RadarChart domainAvg={overview.domain_avg} />
+              </div>
+            </Col>
           </Row>
         </Card>
       )}
 
-      {/* 年级统计 */}
       {gradeStats.length > 0 && (
-        <Card title="按年级统计" className={s.gradeStats}>
-          <Row gutter={16}>
-            {gradeStats.map((item) => (
-              <Col span={8} key={item.grade}>
-                <Card size="small" title={`${item.grade}年级`}>
-                  <div className={s.statRow}>
-                    <span>完成率：</span>
-                    <Progress
-                      percent={parseFloat(item.completion_rate) * 100}
-                      showInfo={false}
-                      strokeColor={{ "0%": "#108ee9", "100%": "#87d068" }}
-                    />
-                    <span>{(parseFloat(item.completion_rate) * 100).toFixed(1)}%</span>
-                  </div>
-                  <div className={s.riskDist}>
-                    {["R0", "R1", "R2", "R3"].map((level) => (
-                      <Tag key={level} color={riskLevelColors[level]}>
-                        {level}: {item.risk_dist[level]}
-                      </Tag>
-                    ))}
-                  </div>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+        <Card title="各年级风险分布" className={s.gradeStats} bodyStyle={{ padding: "12px 16px" }}>
+          <GradeStackBar data={gradeStats} />
         </Card>
       )}
 
-      {/* 班级统计 */}
       {classStats.length > 0 && (
-        <Card title="按班级统计" className={s.classStats}>
-          <Row gutter={16}>
-            {classStats.map((item) => (
-              <Col span={6} key={item.class_no}>
-                <Card size="small" title={`${item.class_no}班`}>
-                  <div className={s.statRow}>
-                    <span>完成率：</span>
-                    <span style={{ fontWeight: "bold" }}>{(parseFloat(item.completion_rate) * 100).toFixed(1)}%</span>
-                  </div>
-                  <div className={s.riskDist}>
-                    {["R0", "R1", "R2", "R3"].map((level) => (
-                      <Tag key={level} color={riskLevelColors[level]}>
-                        {level}: {item.risk_dist[level]}
-                      </Tag>
-                    ))}
-                  </div>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+        <Card title="各班级风险分布" className={s.classStats} bodyStyle={{ padding: "12px 16px" }}>
+          <ClassStackBar data={classStats} />
         </Card>
       )}
 
-      {/* 学生列表 */}
       <Card title="学生列表" className={s.students}>
         <Table
           columns={studentColumns}
           dataSource={students}
           rowKey="id"
-          pagination={{ pageSize: 20 }}
+          pagination={{ pageSize: 10 }}
           scroll={{ x: 800 }}
         />
       </Card>
