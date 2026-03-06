@@ -38,19 +38,26 @@ const Index = () => {
 
     const fetchResult = async () => {
       try {
-        const res = await get(urls.API_STUDENT_RESULT);
+        // 使用 silentErrors 选项，404 和 409 时不显示错误提示
+        const res = await get(urls.API_STUDENT_RESULT, {}, { silentErrors: [404, 409] });
         console.log("获取测试结果响应:", res);
-        if (res.code === 200 && res.data) {
+        if (res?.code === 200 && res?.data) {
           setResult(res.data);
           setTestStatus("finished");
         } else {
+          setResult(null);
           setTestStatus(null);
         }
       } catch (err) {
-        if (err.response?.status === 404) {
+        // 404 表示没有测试结果，409 表示已完成测试，都是正常情况
+        if (err.response?.status === 404 || err.response?.status === 409) {
+          setResult(null);
           setTestStatus(null);
         } else {
-          console.error("获取结果失败:", err);
+          // 其他错误静默处理，不显示错误提示
+          console.warn("获取结果失败:", err);
+          setResult(null);
+          setTestStatus(null);
         }
       }
     };

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>学生首页看板</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+  <script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#13b6ec",
+          "background-light": "#f6f8f8",
+          "background-dark": "#101d22",
+        },
+        fontFamily: {
+          "display": ["Lexend", "sans-serif"]
+        },
+        borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+      },
+    },
+  }
+  </script>
+  <style>
+  body {
+    font-family: 'Lexend', "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  </style>
+  <style>
+  body {
+    min-height: max(884px, 100dvh);
+  }
+  </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+  <div class="relative flex min-h-screen flex-col overflow-x-hidden">
+    <!-- Header Section -->
+    <header class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10 border-b border-primary/10">
+      <div class="flex size-10 shrink-0 items-center overflow-hidden rounded-full border border-primary/20">
+        <img class="w-full h-full object-cover" data-alt="Student profile avatar placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuKwwA27Eadzx-RLMswYyASvwWde-x9c7pU_VY5Pei-DYCFPwMS8T6-fDFulpSVzwuDIJ2yZ_mACtTq5lA-KRcgrHea0BA6_IcyPBJWbE8qAeiMmZUbhgWMUrC_9YMPVJwEwSrig1QqTFunYza6R352pQt02YJRvaTlxNJ0OmCkEbnciegTZOrUShnljznCna7-THmD65iQoNvR3K2xzJKJy8BqhDg9UKbJRThskNz6FjSTyGjzYj8_ZuWOg_RwaMJQj3s-PtRuDY" />
+      </div>
+      <h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 ml-3">心理健康平台</h2>
+      <div class="flex items-center gap-2">
+        <button class="flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-slate-700 dark:text-slate-300">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+      </div>
+    </header>
+    <!-- Welcome Banner -->
+    <div class="flex p-4 mt-2">
+      <div class="flex w-full flex-col gap-4">
+        <div class="flex items-center gap-4">
+          <div class="flex flex-col justify-center">
+            <p class="text-slate-900 dark:text-slate-100 text-2xl font-bold tracking-tight">同学，你好！</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">保持好心情，遇见更好的自己</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Main Assessment Card -->
+    <div class="p-4">
+      <div class="flex flex-col overflow-hidden rounded-xl shadow-sm bg-white dark:bg-slate-800 border border-primary/10">
+        <div class="w-full h-40 bg-gradient-to-r from-primary to-primary/60 relative flex items-center justify-center" data-alt="Calming blue abstract gradient background">
+          <span class="material-symbols-outlined text-white text-6xl opacity-40">psychology</span>
+        </div>
+        <div class="flex w-full flex-col p-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-slate-900 dark:text-slate-100 text-lg font-bold">开始心理健康测评</p>
+              <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 leading-relaxed">
+                共150题，预计耗时20分钟<br />
+                了解你的心理状态，获取专业指导
+              </p>
+            </div>
+          </div>
+          <button class="mt-4 w-full cursor-pointer items-center justify-center rounded-lg h-11 px-4 bg-primary text-white text-sm font-bold shadow-md shadow-primary/20 active:scale-95 transition-transform">
+            立即开始
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Previous Results Section -->
+    <div class="px-4 pb-20">
+      <div class="flex items-center justify-between pt-4 pb-3">
+        <h2 class="text-slate-900 dark:text-slate-100 text-xl font-bold tracking-tight">往期结果</h2>
+        <span class="text-primary text-xs font-medium bg-primary/10 px-2 py-1 rounded">更新于 2023.10.24</span>
+      </div>
+      <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-primary/10 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">综合风险等级</span>
+          <span class="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-3 py-1 rounded-full text-xs font-bold">R1 - 轻度关注</span>
+        </div>
+        <!-- Simulated Radar Chart -->
+        <div class="relative w-full aspect-square max-w-[280px] mx-auto flex items-center justify-center">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <!-- Radar grid lines simulated with CSS borders -->
+            <div class="w-full h-full border border-slate-200 dark:border-slate-700 rounded-full opacity-50"></div>
+            <div class="absolute w-3/4 h-3/4 border border-slate-200 dark:border-slate-700 rounded-full opacity-50"></div>
+            <div class="absolute w-1/2 h-1/2 border border-slate-200 dark:border-slate-700 rounded-full opacity-50"></div>
+            <div class="absolute w-1/4 h-1/4 border border-slate-200 dark:border-slate-700 rounded-full opacity-50"></div>
+            <!-- Radar Axes -->
+            <div class="absolute w-full h-px bg-slate-200 dark:border-slate-700 rotate-0"></div>
+            <div class="absolute w-full h-px bg-slate-200 dark:border-slate-700 rotate-60"></div>
+            <div class="absolute w-full h-px bg-slate-200 dark:border-slate-700 rotate-120"></div>
+            <!-- Data Polygon Area -->
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg class="w-4/5 h-4/5 overflow-visible" viewbox="0 0 100 100">
+                <polygon fill="rgba(19, 182, 236, 0.3)" points="50,10 85,30 80,70 50,90 20,70 15,30" stroke="#13b6ec" stroke-width="2"></polygon>
+              </svg>
+            </div>
+          </div>
+          <!-- Labels -->
+          <span class="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-medium text-slate-600 dark:text-slate-400">学习压力</span>
+          <span class="absolute top-1/4 -right-2 text-[10px] font-medium text-slate-600 dark:text-slate-400">焦虑</span>
+          <span class="absolute bottom-1/4 -right-2 text-[10px] font-medium text-slate-600 dark:text-slate-400">抑郁</span>
+          <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] font-medium text-slate-600 dark:text-slate-400">自尊</span>
+          <span class="absolute bottom-1/4 -left-2 text-[10px] font-medium text-slate-600 dark:text-slate-400">社交</span>
+          <span class="absolute top-1/4 -left-2 text-[10px] font-medium text-slate-600 dark:text-slate-400">网络行为</span>
+        </div>
+        <div class="mt-8 flex justify-center">
+          <button class="text-primary text-sm font-medium flex items-center gap-1">
+            查看完整报告 <span class="material-symbols-outlined text-sm">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -54,8 +54,14 @@ const handleAuth = (config) => {
 /**
  * 处理网络错误
  * @param {Number} errStatus 错误状态码
+ * @param {Array} silentErrors 静默处理的状态码列表
  */
-const handleNetworkError = (errStatus) => {
+const handleNetworkError = (errStatus, silentErrors = []) => {
+  // 如果状态码在静默列表中，不显示错误
+  if (silentErrors.includes(errStatus)) {
+    return;
+  }
+
   let errMessage = "未知错误";
 
   if (errStatus) {
@@ -75,6 +81,9 @@ const handleNetworkError = (errStatus) => {
         break;
       case 404:
         errMessage = "请求错误，未找到该资源";
+        break;
+      case 409:
+        errMessage = "请求冲突";
         break;
       case 405:
         errMessage = "请求方法未允许";
@@ -177,23 +186,29 @@ service.interceptors.response.use(
     return response.data;
   },
   (error) => {
+    // 获取请求配置中的静默错误选项
+    const silentErrors = error.config?.silentErrors || [];
+
     // 处理网络错误
     if (error.response) {
       const { status } = error.response;
-      handleNetworkError(status);
 
-      // 处理认证错误
+      // 将静默错误列表传递给 handleNetworkError
+      handleNetworkError(status, silentErrors);
+
+      // 处理认证错误（401 和 403 始终显示）
       if (status === 401 || status === 403) {
         handleAuthError(status);
       }
 
       // 处理通用错误
       const { data } = error.response;
-      if (data && data.errno) {
+      if (data && data.errno && !silentErrors.includes(data.errno)) {
         handleGeneralError(data.errno, data.errmsg);
       }
     } else {
-      handleNetworkError();
+      // 网络异常始终显示
+      handleNetworkError(null, silentErrors);
     }
 
     return Promise.reject(error);
