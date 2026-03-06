@@ -311,6 +311,7 @@ router.get("/students", requireAuth, requireRole("teacher"), async (req, res) =>
         u.id,
         u.username,
         u.real_name,
+        u.school_name,
         u.grade,
         u.class_no,
         CASE WHEN t.status = 'finished' THEN 1 ELSE 0 END AS has_test,
@@ -369,7 +370,7 @@ router.get("/student/:studentId/result", requireAuth, requireRole("teacher"), as
   try {
     // 验证学生属于同一学校
     const [students] = await conn.query(
-      "SELECT school_id, real_name, grade, class_no FROM psych_users WHERE id = ? AND role = 'student'",
+      "SELECT school_id, real_name, grade, class_no, school_name FROM psych_users WHERE id = ? AND role = 'student'",
       [studentId]
     );
 

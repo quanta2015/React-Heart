@@ -30,7 +30,7 @@ router.post("/login", async (req, res) => {
     // 查询用户
     const [rows] = await conn.query(
       `
-      SELECT id, username, password, role, school_id, real_name, grade, class_no
+      SELECT id, username, password, role, school_id, real_name, grade, class_no, school_name
       FROM psych_users
       WHERE username = ?
       LIMIT 1
@@ -70,6 +70,7 @@ router.post("/login", async (req, res) => {
           id: user.id,
           username: user.username,
           role: user.role,
+          school_name: user.school_name,
           school_id: user.school_id,
           real_name: user.real_name,
           grade: user.grade,
