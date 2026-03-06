@@ -1,0 +1,75 @@
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import cls from "classnames";
+import s from "./index.module.less";
+import logo from "@/img/logo.svg";
+import token from "@/util/token";
+import { Button, Modal, Dropdown } from "antd";
+
+const Nav = () => {
+  const nav = useNavigate();
+  const location = useLocation();
+  const [open, setOpen] = useState(false);
+
+  const user = token.loadUser();
+
+  const handleLogout = () => {
+    setOpen(true);
+  };
+
+  const confirmLogout = () => {
+    token.clear();
+    setOpen(false);
+    nav("/login", { replace: true });
+  };
+
+  const handleLogoClick = () => {
+    nav("/");
+  };
+
+  return (
+    <div className={s.nav}>
+      {/* 左侧：系统图标和名称 */}
+      <div className={s.left} onClick={handleLogoClick}>
+        <div className={s.logo}>
+          <img src={logo} alt="Logo" />
+        </div>
+        <span className={s.title}>学生心理健康测评系统</span>
+      </div>
+
+      {/* 右侧：用户信息 */}
+      <div className={s.right}>
+        {user ? (
+          <div className={s.userInfo}>
+            <span className={s.userName}>{user.real_name || user.username}</span>
+            <span className={s.role}>
+              ({user.role === "student" ? "学生" : user.role === "teacher" ? "教师" : "教育局"})
+            </span>
+            <Button type="primary" danger size="small" onClick={handleLogout}>
+              退出
+            </Button>
+          </div>
+        ) : (
+          <Button type="primary" size="small" onClick={() => nav("/login")}>
+            登录
+          </Button>
+        )}
+      </div>
+
+      {/* 退出确认弹窗 */}
+      <Modal
+        title="确认退出登录？"
+        open={open}
+        onOk={confirmLogout}
+        onCancel={() => setOpen(false)}
+        okText="确定"
+        cancelText="取消"
+        zIndex={2000}
+      >
+        退出后需要重新登录。
+      </Modal>
+    </div>
+  );
+};
+
+export default Nav;

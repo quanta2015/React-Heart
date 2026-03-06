@@ -1,0 +1,24 @@
+# Node / Vite / build outputs
+**/node_modules/
+**/myenv/
+**/data/
+dist/
+.vite/
+
+# Caches
+npm-cache/
+.cache/
+*.log
+
+# model
+*.bin
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Env / local configs
+.env
+.env.*
+*.local
+

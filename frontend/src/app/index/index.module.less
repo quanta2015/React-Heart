@@ -1,0 +1,92 @@
+// 学生主页样式
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.studentIndex {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.resultCard {
+  margin-bottom: 24px;
+}
+
+.resultContent {
+  .domainsSection {
+    margin-top: 24px;
+
+    h3 {
+      margin-bottom: 16px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+  }
+
+  .domainsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .domainCard {
+    text-align: center;
+
+    .domainName {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      color: rgba(0, 0, 0, 0.85);
+    }
+  }
+
+  .tagsSection {
+    margin-top: 24px;
+
+    h3 {
+      margin-bottom: 12px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+  }
+}
+
+.noTestContent {
+  text-align: center;
+  padding: 60px 20px;
+
+  .noTestIcon {
+    font-size: 80px;
+    margin-bottom: 24px;
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    color: rgba(0, 0, 0, 0.85);
+  }
+
+  .noTestDesc {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.45);
+    margin-bottom: 32px;
+  }
+
+  .startBtn {
+    min-width: 200px;
+    height: 48px;
+    font-size: 18px;
+  }
+}
+
+.otherIndex {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}

@@ -1,0 +1,176 @@
+.assessment {
+  padding: 24px;
+  width: 1000px;
+  margin: 0 auto;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.question {
+  margin: 24px 0;
+  padding: 28px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.questionText {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.8;
+  color: #333;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.questionNumber {
+  display: inline-block;
+  padding: 4px 12px;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+// 题目类型颜色
+.domain_学习压力 {
+  background: #ff4d4f;
+}
+.domain_焦虑 {
+  background: #fa8c16;
+}
+.domain_抑郁 {
+  background: #f5222d;
+}
+.domain_自尊 {
+  background: #722ed1;
+}
+.domain_社交 {
+  background: #1890ff;
+}
+.domain_网络行为 {
+  background: #13c2c2;
+}
+.domain_家庭关系 {
+  background: #eb2f96;
+}
+.domain_default {
+  background: #8c8c8c;
+}
+
+.questionContent {
+  flex: 1;
+  color: #333;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.optionLabel {
+  font-size: 16px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 20px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.navButtons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.questionNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.navBtn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    border-color: #1890ff;
+    color: #1890ff;
+    transform: translateY(-2px);
+  }
+
+  &.answered {
+    background: #52c41a;
+    color: #fff;
+    border-color: #52c41a;
+  }
+
+  &.unanswered {
+    background: #fff;
+    color: #666;
+    border-color: #d9d9d9;
+  }
+
+  &.current {
+    background: #1890ff;
+    color: #fff;
+    border-color: #1890ff;
+    box-shadow: 0 2px 6px rgba(24, 144, 255, 0.4);
+  }
+}
+
+.navEllipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: #999;
+  font-size: 16px;
+}
+
+.submitContainer {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  margin-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}

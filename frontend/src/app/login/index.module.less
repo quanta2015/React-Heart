@@ -1,0 +1,95 @@
+// 登录页面样式
+@primary-blue: #1677ff;
+@ai-purple: #722ed1;
+@bg-dark: #001529;
+
+.login {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #000000 100%);
+  overflow: hidden;
+
+  // 动态渐变球体背景
+  .bgSphere1 {
+    position: absolute;
+    top: -10%;
+    right: -5%;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(22, 119, 255, 0.15) 0%, transparent 70%);
+    filter: blur(60px);
+    animation: move 20s infinite alternate;
+  }
+
+  .bgSphere2 {
+    position: absolute;
+    bottom: -10%;
+    left: -5%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(114, 46, 209, 0.1) 0%, transparent 70%);
+    filter: blur(60px);
+    animation: move 15s infinite alternate-reverse;
+  }
+}
+
+.loginCard {
+  z-index: 10;
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 32px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.8s ease-out;
+
+  :global {
+    .ant-input-affix-wrapper {
+      height: 44px;
+      border-radius: 8px;
+    }
+
+    .ant-btn-primary {
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+  }
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+// 动画定义
+@keyframes move {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(30px, 20px) scale(1.1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
