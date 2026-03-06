@@ -11,17 +11,20 @@
     min-height: 400px;
   }
 
-  .filters {
+  & > .filters {
     margin-bottom: 16px;
 
     :global {
       .ant-card-body {
         padding: 16px;
+
+        display: flex;
       }
     }
   }
 
   .filterBar {
+    flex: 1;
     display: flex;
     align-items: center;
     flex-wrap: wrap;

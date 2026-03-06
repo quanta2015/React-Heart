@@ -596,7 +596,7 @@ const ResultsSection = ({ result, user }) => {
             <div className={s.resultInfo}>
               <div className={s.infoRow}>
                 <span className={s.infoLabel}>学生姓名：</span>
-                <span className={s.infoValue}>{result.student_name}</span>
+                <span className={s.infoValue}>{user.real_name}</span>
               </div>
 
               <div className={s.infoRow}>

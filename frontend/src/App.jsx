@@ -19,7 +19,7 @@ const Loading = () => (
 const Layout = ({ children }) => (
   <div style={{ minHeight: "100vh", background: "#f0f2f5" }}>
     <Nav />
-    <div style={{ height: "calc( 100vh - 65px)" }}>{children}</div>
+    <div>{children}</div>
   </div>
 );
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, Row, Col, Progress, Table, Tag, Select, Spin, message, Empty, Modal } from "antd";
+import { Card, Row, Col, Progress, Table, Tag, Select, Spin, message, Empty, Modal, Button } from "antd";
 import { get } from "@/util/request";
 import * as urls from "@/constant/urls";
 import s from "./index.module.less";
@@ -15,6 +15,15 @@ const Teacher = () => {
   const [classStats, setClassStats] = useState([]);
   const [students, setStudents] = useState([]);
   const [filters, setFilters] = useState({ grade: undefined, class_no: undefined });
+  const [riskLevelFilter, setRiskLevelFilter] = useState(null);
+
+  const handleTableChange = (pagination, filters) => {
+    if (filters.risk_level) {
+      setRiskLevelFilter(filters.risk_level);
+    } else {
+      setRiskLevelFilter(null);
+    }
+  };
 
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [studentResult, setStudentResult] = useState(null);
@@ -180,30 +189,46 @@ const Teacher = () => {
       title: "年级",
       dataIndex: "grade",
       key: "grade",
-      width: 80,
+      width: 120,
       sorter: (a, b) => a.grade - b.grade
     },
     {
       title: "班级",
       dataIndex: "class_no",
       key: "class_no",
-      width: 80,
+      width: 120,
       sorter: (a, b) => a.class_no - b.class_no
     },
     {
       title: "测评状态",
       dataIndex: "has_test",
       key: "has_test",
-      width: 100,
+      width: 150,
       render: (has_test) => <Tag color={has_test ? "green" : "orange"}>{has_test ? "已完成" : "未完成"}</Tag>
     },
     {
       title: "风险等级",
       dataIndex: "risk_level",
       key: "risk_level",
-      width: 100,
+      width: 150,
+      filters: [
+        { text: "低风险", value: "R0" },
+        { text: "中低风险", value: "R1" },
+        { text: "中高风险", value: "R2" },
+        { text: "高风险", value: "R3" }
+      ],
+      onFilter: (value, record) => record.risk_level === value,
+      filteredValue: riskLevelFilter,
       render: (risk_level, record) =>
         record.has_test ? <Tag color={riskLevelColors[risk_level]}>{riskLevelLabels[risk_level]}</Tag> : <span>-</span>
+    },
+    {
+      title: "风险评分",
+      dataIndex: "risk_score",
+      key: "risk_score",
+      width: 150,
+      sorter: (a, b) => a.risk_score - b.risk_score,
+      render: (risk_score, record) => (record.has_test ? risk_score : "-")
     },
     {
       title: "测评时间",
@@ -239,6 +264,12 @@ const Teacher = () => {
             : "transparent";
     }
   });
+
+  const handleGenerateReport = () => {
+    message.info("正在生成报告，请稍候...");
+    // 这里可以调用生成报告的接口，或者直接在前端处理数据生成报告
+    // 目前只是展示一个提示信息
+  };
 
   if (loading) {
     return (
@@ -284,6 +315,10 @@ const Teacher = () => {
             disabled={!filters.grade || classOptions.length === 0}
           />
         </div>
+
+        <Button type="primary" onClick={handleGenerateReport}>
+          生成报告
+        </Button>
       </Card>
 
       {overview && (
@@ -372,6 +407,7 @@ const Teacher = () => {
           pagination={{ pageSize: 10 }}
           scroll={{ x: 800 }}
           onRow={onRow}
+          onChange={handleTableChange}
         />
       </Card>
 
@@ -392,7 +428,7 @@ const Teacher = () => {
             <Spin />
           </div>
         ) : studentResult ? (
-          <ResultsSection result={studentResult} />
+          <ResultsSection result={studentResult} user={selectedStudent} />
         ) : (
           <Empty description="暂无测评结果" />
         )}
