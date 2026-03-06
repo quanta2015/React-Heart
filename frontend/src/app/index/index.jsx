@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Card, Button, Spin, message, Descriptions, Tag, Progress } from "antd";
+import React, { useState, useEffect, useRef } from "react";
+import { Spin, message, Progress, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
 import * as urls from "@/constant/urls";
 import { get } from "@/util/request";
 import token from "@/util/token";
 import s from "./index.module.less";
+import * as echarts from "echarts";
 
 const Index = () => {
   const navigate = useNavigate();
+  const radarRef = useRef(null);
 
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
@@ -86,6 +88,51 @@ const Index = () => {
     }
   }, []);
 
+  // 初始化雷达图
+  useEffect(() => {
+    if (testStatus === "finished" && result?.domains && radarRef.current) {
+      const chart = echarts.init(radarRef.current);
+
+      const domains = result.domains;
+      const domainNames = Object.keys(domains);
+      const domainValues = domainNames.map((name) => ({
+        name,
+        max: 1
+      }));
+
+      const dataValues = domainNames.map((name) => domains[name]);
+
+      chart.setOption({
+        radar: {
+          indicator: domainValues,
+          radius: "65%"
+        },
+        series: [
+          {
+            type: "radar",
+            data: [
+              {
+                value: dataValues,
+                name: "评估结果"
+              }
+            ],
+            areaStyle: {
+              color: "rgba(19, 182, 236, 0.3)"
+            },
+            lineStyle: {
+              color: "#13b6ec"
+            },
+            itemStyle: {
+              color: "#13b6ec"
+            }
+          }
+        ]
+      });
+
+      return () => chart.dispose();
+    }
+  }, [testStatus, result]);
+
   // 开始测试
   const handleStartTest = async () => {
     try {
@@ -114,120 +161,208 @@ const Index = () => {
     }
   };
 
+  // 从标签解析维度风险等级
+  const parseDomainRiskFromTags = (tags) => {
+    if (!tags || tags.length === 0) return {};
+
+    // 英文标签名到中文显示名的映射
+    const domainNameMap = {
+      academicstress: "学习压力",
+      depression: "抑郁",
+      anxiety: "焦虑",
+      selfesteem: "自尊",
+      social: "社交",
+      internet: "网络行为"
+    };
+
+    const riskMap = {};
+    tags.forEach((tag) => {
+      // 标签格式：academicstress_medium, depression_low, anxiety_high
+      const parts = tag.split("_");
+      if (parts.length === 2) {
+        const domainEn = parts[0].toLowerCase();
+        const risk = parts[1].toLowerCase();
+        // 将英文域名映射到中文显示名
+        const domainCn = domainNameMap[domainEn] || domainEn;
+        riskMap[domainCn] = risk;
+      }
+    });
+    return riskMap;
+  };
+
   // 渲染风险等级标签
   const renderRiskTag = (level) => {
     const config = {
-      R0: { color: "green", text: "低风险" },
-      R1: { color: "blue", text: "轻度关注" },
-      R2: { color: "orange", text: "中度风险" },
-      R3: { color: "red", text: "高风险" }
+      high: { color: "#ff4d4f", text: "高风险" },
+      medium: { color: "#faad14", text: "中风险" },
+      low: { color: "#52c41a", text: "低风险" }
     };
-    const cfg = config[level] || { color: "default", text: level };
+    const cfg = config[level] || { color: "#d9d9d9", text: "未知" };
     return <Tag color={cfg.color}>{cfg.text}</Tag>;
   };
 
-  // 加载中
-  if (loading) {
-    return (
-      <div className={s.loading}>
-        <Spin size="large" tip="加载中..." />
-      </div>
-    );
-  }
+  // 渲染综合风险等级标签
+  const renderOverallRiskTag = (level) => {
+    const config = {
+      R0: { color: "#52c41a", text: "低风险" },
+      R1: { color: "#1890ff", text: "轻度关注" },
+      R2: { color: "#faad14", text: "中度风险" },
+      R3: { color: "#ff4d4f", text: "高风险" }
+    };
+    const cfg = config[level] || { color: "#d9d9d9", text: level };
+    return <Tag color={cfg.color}>{cfg.text}</Tag>;
+  };
 
-  // 未登录
-  if (!currentUser) {
-    return (
-      <div className={s.otherIndex}>
-        <Card title="未登录">
-          <p>请先登录</p>
-          <Button type="primary" onClick={() => navigate("/login")}>
-            去登录
-          </Button>
-        </Card>
-      </div>
-    );
-  }
+  // 获取用户首字母作为头像
+  const getUserAvatar = () => {
+    if (currentUser?.real_name) {
+      return currentUser.real_name.charAt(0).toUpperCase();
+    }
+    if (currentUser?.username) {
+      return currentUser.username.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
 
-  // 学生主页
-  if (currentUser.role === "student") {
-    return (
-      <div className={s.studentIndex}>
-        <Card title="心理健康测评" className={s.resultCard}>
+  return (
+    <div className={s.container}>
+      {/* 加载中 */}
+      {loading && (
+        <div className={s.loading}>
+          <Spin size="large" tip="加载中..." />
+        </div>
+      )}
+
+      {/* 未登录 */}
+      {!loading && !currentUser && (
+        <div className={s.otherIndex}>
+          <div className={s.noTestCard}>
+            <div className={s.noTestIcon}>🔒</div>
+            <h2 className={s.noTestTitle}>未登录</h2>
+            <p className={s.noTestDesc}>请先登录系统</p>
+            <button className={s.startBtn} onClick={() => navigate("/login")}>
+              去登录
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 学生主页 */}
+      {!loading && currentUser?.role === "student" && (
+        <div className={s.studentIndex}>
+          {/* Welcome Banner */}
+          <div className={s.welcomeBanner}>
+            <p className={s.greeting}>同学，你好！</p>
+            <p className={s.subtitle}>保持好心情，遇见更好的自己</p>
+          </div>
+
+          {/* 有测试结果时显示详情 */}
           {testStatus === "finished" && result ? (
-            <div className={s.resultContent}>
-              <Descriptions title="测评结果" bordered column={2}>
-                <Descriptions.Item label="风险等级">{renderRiskTag(result.risk_level)}</Descriptions.Item>
-                <Descriptions.Item label="风险分数">
-                  <Progress
-                    percent={Math.round(result.risk_score * 100)}
-                    strokeColor={{
-                      "0%": "#52c41a",
-                      "100%": "#ff4d4f"
-                    }}
-                    format={(percent) => percent + "%"}
-                  />
-                </Descriptions.Item>
-                <Descriptions.Item label="测评时间">{result.finished_at || result.created_at}</Descriptions.Item>
-                <Descriptions.Item label="测评版本">{result.version || "ISWB-CN-v1"}</Descriptions.Item>
-              </Descriptions>
-
-              {result.domains && (
-                <div className={s.domainsSection}>
-                  <h3>六维度评估结果</h3>
-                  <div className={s.domainsGrid}>
-                    {Object.entries(result.domains).map(([domain, value]) => (
-                      <Card key={domain} size="small" className={s.domainCard}>
-                        <div className={s.domainName}>{domain}</div>
+            <div className={s.resultsSection}>
+              <div className={s.sectionHeader}>
+                <h2 className={s.sectionTitle}>评测结果</h2>
+                <span className={s.updateTime}>更新于 {result.finished_at || result.created_at || "-"}</span>
+              </div>
+              <div className={s.resultCard}>
+                {/* 基本信息：风险等级、风险分数、评测时间 */}
+                <div className={s.resultHeader}>
+                  <div className={s.resultInfo}>
+                    <div className={s.infoRow}>
+                      <span className={s.infoLabel}>风险等级</span>
+                      {renderOverallRiskTag(result.risk_level)}
+                    </div>
+                    <div className={s.infoRow}>
+                      <span className={s.infoLabel}>风险分数</span>
+                      <div className={s.scoreValue}>
                         <Progress
-                          percent={Math.round(value * 100)}
+                          percent={Math.round(result.risk_score * 100)}
                           strokeColor={{
                             "0%": "#52c41a",
                             "100%": "#ff4d4f"
                           }}
                           format={(percent) => percent + "%"}
+                          style={{ marginBottom: 0 }}
                         />
-                      </Card>
-                    ))}
+                      </div>
+                    </div>
+                    <div className={s.infoRow}>
+                      <span className={s.infoLabel}>评测时间</span>
+                      <span className={s.infoValue}>{result.finished_at || result.created_at || "-"}</span>
+                    </div>
                   </div>
                 </div>
-              )}
 
-              {result.tags && result.tags.length > 0 && (
-                <div className={s.tagsSection}>
-                  <h3>评估标签</h3>
-                  <div>
-                    {result.tags.map((tag, idx) => (
-                      <Tag key={idx} color="blue">
-                        {tag}
-                      </Tag>
-                    ))}
+                {/* 六维度评估结果：左边雷达图，右边标签卡片 */}
+                <div className={s.domainsSection}>
+                  <h3 className={s.sectionSubTitle}>六维度评估结果</h3>
+                  <div className={s.domainsContent}>
+                    {/* 左边：雷达图 */}
+                    <div className={s.radarWrapper}>
+                      <div ref={radarRef} className={s.radarChart} />
+                    </div>
+
+                    {/* 右边：维度风险卡片 */}
+                    <div className={s.domainCards}>
+                      {(() => {
+                        const domainRisks = parseDomainRiskFromTags(result.tags);
+                        const domainNames = Object.keys(result.domains || {});
+                        return domainNames.map((domain) => {
+                          const risk = domainRisks[domain] || "unknown";
+                          return (
+                            <div key={domain} className={s.domainCard}>
+                              <span className={s.domainName}>{domain}</span>
+                              {renderRiskTag(risk)}
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           ) : (
-            <div className={s.noTestContent}>
-              <div className={s.noTestIcon}>📋</div>
-              <h2>尚未进行测试</h2>
-              <p className={s.noTestDesc}>请完成心理健康测评，共 150 道题目，预计用时 15-20 分钟</p>
-              <Button type="primary" size="large" onClick={handleStartTest} className={s.startBtn}>
-                开始测试
-              </Button>
-            </div>
-          )}
-        </Card>
-      </div>
-    );
-  }
+            /* 无测试结果时显示开始测评卡片 */
+            <>
+              <div className={s.assessmentCard}>
+                <div className={s.cardImage}>
+                  <span className={s.psychologyIcon}>🧠</span>
+                </div>
+                <div className={s.cardContent}>
+                  <p className={s.cardTitle}>开始心理健康测评</p>
+                  <p className={s.cardDesc}>
+                    共 150 题，预计耗时 20 分钟
+                    <br />
+                    了解你的心理状态，获取专业指导
+                  </p>
+                  <button className={s.startBtn} onClick={handleStartTest}>
+                    立即开始
+                  </button>
+                </div>
+              </div>
 
-  // 教师/教育局主页
-  return (
-    <div className={s.otherIndex}>
-      <Card title={`欢迎，${currentUser.real_name || currentUser.username || "用户"}`}>
-        <p>角色：{currentUser.role || "未知"}</p>
-        <p>学校 ID: {currentUser.school_id || "-"}</p>
-      </Card>
+              <div className={s.resultsSection}>
+                <div className={s.sectionHeader}>
+                  <h2 className={s.sectionTitle}>往期结果</h2>
+                  <span className={s.updateTime}>暂无数据</span>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* 教师/教育局主页 */}
+      {!loading && currentUser && currentUser.role !== "student" && (
+        <div className={s.otherIndex}>
+          <div className={s.noTestCard}>
+            <div className={s.noTestIcon}>👋</div>
+            <h2 className={s.noTestTitle}>欢迎，{currentUser.real_name || currentUser.username || "用户"}</h2>
+            <p className={s.noTestDesc}>角色：{currentUser.role || "未知"}</p>
+            <p className={s.noTestDesc}>学校 ID: {currentUser.school_id || "-"}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
