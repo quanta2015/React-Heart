@@ -162,20 +162,20 @@ const Assessment = () => {
             onChange={(e) => handleAnswerChange(currentQ.id, e.target.value)}
             className={s.options}
           >
-            <Radio value={1}>
-              <span className={s.optionLabel}>非常不符合</span>
+            <Radio value={1} className={s.optionRadio}>
+              <span className={s.optionText}>非常不符合</span>
             </Radio>
-            <Radio value={2}>
-              <span className={s.optionLabel}>比较不符合</span>
+            <Radio value={2} className={s.optionRadio}>
+              <span className={s.optionText}>比较不符合</span>
             </Radio>
-            <Radio value={3}>
-              <span className={s.optionLabel}>不太确定</span>
+            <Radio value={3} className={s.optionRadio}>
+              <span className={s.optionText}>不太确定</span>
             </Radio>
-            <Radio value={4}>
-              <span className={s.optionLabel}>比较符合</span>
+            <Radio value={4} className={s.optionRadio}>
+              <span className={s.optionText}>比较符合</span>
             </Radio>
-            <Radio value={5}>
-              <span className={s.optionLabel}>非常符合</span>
+            <Radio value={5} className={s.optionRadio}>
+              <span className={s.optionText}>非常符合</span>
             </Radio>
           </Radio.Group>
         </div>
