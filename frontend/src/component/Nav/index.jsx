@@ -31,10 +31,10 @@ const Nav = () => {
     <div className={s.nav}>
       {/* 左侧：系统图标和名称 */}
       <div className={s.left} onClick={handleLogoClick}>
-        <div className={s.logo}>
+        {/* <div className={s.logo}>
           <img src={logo} alt="Logo" />
-        </div>
-        <span className={s.title}>学生心理健康测评系统</span>
+        </div> */}
+        <span className={s.title}>学生心理健康测评</span>
       </div>
 
       {/* 右侧：用户信息 */}

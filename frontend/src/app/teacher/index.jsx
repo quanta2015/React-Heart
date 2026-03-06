@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, Row, Col, Progress, Table, Tag, Select, Space, Spin } from "antd";
+import { Card, Row, Col, Progress, Table, Tag, Select, Spin } from "antd";
 import { get } from "@/util/request";
 import * as urls from "@/constant/urls";
 import s from "./index.module.less";
@@ -80,7 +80,6 @@ const Teacher = () => {
     fetchData();
   }, [filters]);
 
-  // 动态生成年级下拉选项
   const gradeOptions = useMemo(() => {
     return [...new Set((gradeStats || []).map((item) => item?.grade).filter((v) => v !== undefined && v !== null))]
       .sort((a, b) => a - b)
@@ -90,7 +89,6 @@ const Teacher = () => {
       }));
   }, [gradeStats]);
 
-  // 动态生成班级下拉选项
   const classOptions = useMemo(() => {
     return [...new Set((classStats || []).map((item) => item?.class_no).filter((v) => v !== undefined && v !== null))]
       .sort((a, b) => a - b)
@@ -170,11 +168,11 @@ const Teacher = () => {
   return (
     <div className={s.teacher}>
       <Card className={s.filters}>
-        <Space>
-          <span>筛选：</span>
+        <div className={s.filterBar}>
+          <span className={s.filterLabel}>筛选：</span>
 
           <Select
-            style={{ width: 140 }}
+            className={s.filterSelect}
             placeholder="年级"
             value={filters.grade}
             allowClear
@@ -189,7 +187,7 @@ const Teacher = () => {
           />
 
           <Select
-            style={{ width: 140 }}
+            className={s.filterSelect}
             placeholder="班级"
             value={filters.class_no}
             allowClear
@@ -202,14 +200,13 @@ const Teacher = () => {
             }
             disabled={!filters.grade || classOptions.length === 0}
           />
-        </Space>
+        </div>
       </Card>
 
       {overview && (
         <Card className={s.overview}>
-          <Row gutter={16} align="stretch">
-            {/* 左侧：完成率 */}
-            <Col span={6}>
+          <Row gutter={[16, 16]} align="stretch">
+            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
               <div className={s.overviewLeft}>
                 <div className={s.overviewTitle}>完成情况</div>
 
@@ -238,13 +235,12 @@ const Teacher = () => {
               </div>
             </Col>
 
-            {/* 中间：风险等级 */}
-            <Col span={10}>
+            <Col xs={24} sm={24} md={24} lg={10} xl={10}>
               <div className={s.overviewCenter}>
                 <div className={s.overviewTitle}>风险等级分布</div>
                 <Row gutter={[12, 12]}>
                   {["R0", "R1", "R2", "R3"].map((level) => (
-                    <Col span={12} key={level}>
+                    <Col xs={12} sm={12} md={12} lg={12} xl={12} key={level}>
                       <div className={s.riskItem}>
                         <Tag color={riskLevelColors[level]} style={{ fontSize: 14, padding: "4px 12px" }}>
                           {riskLevelLabels[level]}
@@ -257,11 +253,12 @@ const Teacher = () => {
               </div>
             </Col>
 
-            {/* 右侧：雷达图 */}
-            <Col span={8}>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
               <div className={s.overviewRight}>
                 <div className={s.overviewTitle}>领域分布雷达图</div>
-                <RadarChart domainAvg={overview.domain_avg} />
+                <div className={s.radarWrap}>
+                  <RadarChart domainAvg={overview.domain_avg} />
+                </div>
               </div>
             </Col>
           </Row>
@@ -270,13 +267,17 @@ const Teacher = () => {
 
       {gradeStats.length > 0 && (
         <Card title="各年级风险分布" className={s.gradeStats} bodyStyle={{ padding: "12px 16px" }}>
-          <GradeStackBar data={gradeStats} />
+          <div className={s.chartWrapGrade}>
+            <GradeStackBar data={gradeStats} />
+          </div>
         </Card>
       )}
 
       {classStats.length > 0 && (
         <Card title="各班级风险分布" className={s.classStats} bodyStyle={{ padding: "12px 16px" }}>
-          <ClassStackBar data={classStats} />
+          <div className={s.chartWrapClass}>
+            <ClassStackBar data={classStats} />
+          </div>
         </Card>
       )}
 
