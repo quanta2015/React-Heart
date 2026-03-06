@@ -514,7 +514,7 @@ const Index = () => {
           </div>
 
           {testStatus === "finished" && result ? (
-            <ResultsSection result={result} />
+            <ResultsSection result={result} user={currentUser} />
           ) : (
             <div className={s.assessmentCard}>
               <div className={s.cardImage}>
