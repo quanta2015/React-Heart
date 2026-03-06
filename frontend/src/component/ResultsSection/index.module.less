@@ -16,9 +16,12 @@
 .sectionHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding-top: 16px;
-  padding-bottom: 12px;
+  justify-content: flex-end;
+  padding: 0 32px 15px;
+
+  button {
+    width: 160px;
+  }
 }
 
 .sectionTitle {
@@ -354,4 +357,720 @@
   .interpretationList {
     grid-template-columns: 1fr;
   }
+}
+
+//  pdf export styles
+
+.resultsSection {
+  padding: 24px;
+  background: #f5f7fa;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.updateTime {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #8c8c8c;
+}
+
+.reportContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+}
+
+/* A4 页面 */
+.pdfPage {
+  width: 794px;
+  min-height: 1123px;
+  background: #ffffff;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+}
+
+/* 封面 */
+.coverPage {
+  width: 100%;
+  min-height: 1123px;
+  padding: 72px 64px 56px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #f7fbff 0%, #ffffff 38%, #f9fcff 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.coverPage::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: linear-gradient(90deg, #1677ff 0%, #69b1ff 100%);
+}
+
+.coverTop {
+  margin-top: 40px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #1f3f72;
+}
+
+.coverTitle {
+  margin-top: 120px;
+  font-size: 42px;
+  line-height: 1.35;
+  font-weight: 700;
+  color: #102a43;
+  letter-spacing: 4px;
+}
+
+.coverSubTitle {
+  margin-top: 18px;
+  font-size: 20px;
+  color: #4e6e8e;
+  letter-spacing: 1px;
+}
+
+.coverInfoCard {
+  width: 100%;
+  max-width: 520px;
+  margin-top: 90px;
+  padding: 22px 28px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e6f0ff;
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgba(22, 119, 255, 0.08);
+}
+
+.coverInfoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  font-size: 16px;
+  color: #262626;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.coverInfoRow:last-child {
+  border-bottom: none;
+}
+
+.coverInfoRow span:first-child {
+  color: #595959;
+}
+
+.coverInfoRow span:last-child {
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.coverRiskBadge {
+  margin-top: 48px;
+  min-width: 180px;
+  height: 56px;
+  padding: 0 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.coverFooter {
+  margin-top: auto;
+  padding-top: 48px;
+  font-size: 14px;
+  color: #8c8c8c;
+  text-align: center;
+}
+
+/* 公共页头 */
+.reportHeader {
+  height: 64px;
+  padding: 0 32px;
+  border-bottom: 1px solid #eaeaea;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fcfdff;
+  color: #595959;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.reportHeaderLeft,
+.reportHeaderCenter,
+.reportHeaderRight {
+  flex: 1;
+}
+
+.reportHeaderCenter {
+  text-align: center;
+  font-weight: 600;
+  color: #1f1f1f;
+  letter-spacing: 1px;
+}
+
+.reportHeaderRight {
+  text-align: right;
+}
+
+.reportBody {
+  padding: 24px 28px 28px;
+  box-sizing: border-box;
+}
+
+/* 基础卡片 */
+.baseInfoCard {
+  padding: 18px 20px;
+  background: #fafcff;
+  border: 1px solid #e6f4ff;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.baseInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 24px;
+  font-size: 15px;
+  color: #262626;
+}
+
+.baseInfoGrid > div {
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.baseInfoGrid span {
+  color: #595959;
+}
+
+/* 综合风险大展示 */
+.bigRiskSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  background: linear-gradient(90deg, #f6fbff 0%, #ffffff 100%);
+  border: 1px solid #e6f4ff;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.bigRiskLabel {
+  font-size: 18px;
+  color: #595959;
+  font-weight: 500;
+}
+
+.bigRiskValue {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* 风险颜色 */
+.low {
+  color: #389e0d;
+  background: #f6ffed;
+}
+
+.notice {
+  color: #1677ff;
+  background: #e6f4ff;
+}
+
+.medium {
+  color: #d48806;
+  background: #fffbe6;
+}
+
+.high {
+  color: #cf1322;
+  background: #fff1f0;
+}
+
+/* 内容块 */
+.reportBlock {
+  margin-bottom: 20px;
+  padding: 20px 22px;
+  border: 1px solid #f0f0f0;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.blockTitle {
+  position: relative;
+  padding-left: 12px;
+  margin-bottom: 18px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f1f1f;
+  line-height: 1.4;
+}
+
+.blockTitle::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 4px;
+  height: 18px;
+  border-radius: 2px;
+  background: #1677ff;
+}
+
+/* 雷达图 */
+.radarCenterSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.reportRadarChart {
+  width: 100%;
+  height: 340px;
+}
+
+/* 维度网格 */
+.domainGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.domainGridItem {
+  min-height: 52px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.domainGridName {
+  font-size: 15px;
+  color: #262626;
+  font-weight: 500;
+}
+
+/* 分数条 */
+.scoreBarRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.scoreBarLabel {
+  width: 88px;
+  flex-shrink: 0;
+  color: #595959;
+  font-size: 14px;
+}
+
+.scoreBarWrap {
+  flex: 1;
+}
+
+/* 分析总结 */
+.summaryCard {
+  padding: 18px 20px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fcfeff 0%, #f9fbff 100%);
+  border: 1px solid #e6f4ff;
+}
+
+.summaryHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.summaryLevel {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #e6f4ff;
+  color: #1677ff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.summaryTitle {
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f1f1f;
+  line-height: 1.5;
+}
+
+.summaryContent {
+  font-size: 15px;
+  line-height: 1.9;
+  color: #434343;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.priorityRow {
+  margin-top: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.priorityLabel {
+  flex-shrink: 0;
+  color: #595959;
+  font-size: 14px;
+  line-height: 32px;
+}
+
+.priorityTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.referAlert {
+  margin-top: 16px;
+}
+
+/* 建议措施 */
+.adviceGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.adviceBlock {
+  padding: 16px 18px;
+  background: #fafcff;
+  border: 1px solid #edf2f7;
+  border-radius: 12px;
+}
+
+.adviceTitle {
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.adviceList {
+  margin: 0;
+  padding-left: 20px;
+  color: #434343;
+}
+
+.adviceList li {
+  margin-bottom: 8px;
+  line-height: 1.8;
+  font-size: 14px;
+}
+
+.adviceList li:last-child {
+  margin-bottom: 0;
+}
+
+/* 跟进 */
+.followupCard {
+  padding: 18px 20px;
+  border-radius: 12px;
+  background: #fcfcfc;
+  border: 1px solid #f0f0f0;
+}
+
+.followupRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed #f0f0f0;
+}
+
+.followupRow:last-child {
+  border-bottom: none;
+}
+
+.followupLabel {
+  width: 100px;
+  flex-shrink: 0;
+  color: #595959;
+  font-size: 14px;
+  line-height: 32px;
+}
+
+.followupValue {
+  line-height: 32px;
+  font-size: 14px;
+  color: #262626;
+  font-weight: 500;
+}
+
+.followupTags {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* antd 组件局部修饰 */
+.resultsSection :global(.ant-tag) {
+  margin-inline-end: 0;
+  border-radius: 999px;
+  padding-inline: 10px;
+  line-height: 24px;
+  font-size: 12px;
+}
+
+.resultsSection :global(.ant-progress) {
+  line-height: 1;
+}
+
+.resultsSection :global(.ant-progress-text) {
+  font-size: 14px;
+  color: #262626;
+}
+
+.resultsSection :global(.ant-alert) {
+  border-radius: 12px;
+}
+
+.resultsSection :global(.ant-btn-primary) {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* 打印 / 导出友好 */
+@media print {
+  .resultsSection {
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .sectionHeader {
+    display: none;
+  }
+
+  .reportContainer {
+    gap: 0;
+  }
+
+  .pdfPage {
+    width: 210mm;
+    min-height: 297mm;
+    border-radius: 0;
+    box-shadow: none;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .pdfPage:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+}
+
+/* 小屏预览适配 */
+@media (max-width: 860px) {
+  .resultsSection {
+    padding: 12px;
+  }
+
+  .pdfPage {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .coverPage {
+    min-height: auto;
+    padding: 40px 20px;
+  }
+
+  .reportBody {
+    padding: 16px;
+    height: calc(100% - 48px); // 假设扣掉 header
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .reportHeader {
+    padding: 0 16px;
+  }
+
+  .baseInfoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .domainGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .scoreBarRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .scoreBarLabel {
+    width: auto;
+  }
+
+  .followupRow,
+  .priorityRow,
+  .bigRiskSection {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .followupLabel {
+    width: auto;
+    line-height: 1.6;
+  }
+}
+
+/* ------------------------------
+   第三页文字防变形优化
+------------------------------ */
+
+.reportBlock,
+.summaryCard,
+.adviceBlock,
+.followupCard {
+  transform: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.summaryCard,
+.adviceBlock,
+.followupCard {
+  background: #ffffff !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.summaryTitle,
+.summaryContent,
+.adviceTitle,
+.adviceList,
+.adviceList li,
+.followupLabel,
+.followupValue,
+.blockTitle,
+.priorityLabel,
+.summaryLevel {
+  transform: none !important;
+  letter-spacing: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 分析内容正文 */
+.summaryContent {
+  font-size: 15px;
+  line-height: 1.9;
+  color: #262626;
+  white-space: pre-wrap;
+}
+
+/* 建议列表 */
+.adviceList {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.adviceList li {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #434343;
+}
+
+/* 跟进信息 */
+.followupCard {
+  padding: 18px 20px;
+  border-radius: 10px;
+  border: 1px solid #e8e8e8;
+}
+
+.followupRow {
+  align-items: flex-start;
+}
+
+.followupTags,
+.priorityTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Alert 在截图里有时会糊，简单化 */
+.referAlert {
+  box-shadow: none !important;
+}
+
+.resultsSection :global(.ant-alert),
+.resultsSection :global(.ant-tag) {
+  transform: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* 避免某些浏览器导出时把 flex 文字压缩变形 */
+.summaryHeader,
+.priorityRow,
+.followupRow {
+  min-width: 0;
+}
+
+.summaryTitle,
+.summaryContent,
+.followupValue,
+.priorityLabel {
+  min-width: 0;
 }

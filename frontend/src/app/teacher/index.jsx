@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Card, Row, Col, Progress, Table, Tag, Select, Spin, message, Empty, Modal, Button } from "antd";
 import { get } from "@/util/request";
 import * as urls from "@/constant/urls";
@@ -7,6 +7,9 @@ import GradeStackBar from "./chart/GradeStackBar";
 import ClassStackBar from "./chart/ClassStackBar";
 import RadarChart from "./chart/RadarChart";
 import ResultsSection from "@/component/ResultsSection";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { generatePsychSuggestion } from "@/util/suggestionEngine";
 
 const Teacher = () => {
   const [loading, setLoading] = useState(true);
@@ -29,6 +32,8 @@ const Teacher = () => {
   const [studentResult, setStudentResult] = useState(null);
   const [studentResultLoading, setStudentResultLoading] = useState(false);
   const [resultModalVisible, setResultModalVisible] = useState(false);
+  const [generatingReport, setGeneratingReport] = useState(false);
+  const reportRef = useRef(null);
 
   const fetchOverview = async () => {
     try {
@@ -265,11 +270,7 @@ const Teacher = () => {
     }
   });
 
-  const handleGenerateReport = () => {
-    message.info("正在生成报告，请稍候...");
-    // 这里可以调用生成报告的接口，或者直接在前端处理数据生成报告
-    // 目前只是展示一个提示信息
-  };
+  const handleGenerateReport = async () => {};
 
   if (loading) {
     return (
@@ -316,7 +317,7 @@ const Teacher = () => {
           />
         </div>
 
-        <Button type="primary" onClick={handleGenerateReport}>
+        <Button type="primary" onClick={handleGenerateReport} loading={generatingReport} disabled={generatingReport}>
           生成报告
         </Button>
       </Card>
@@ -419,8 +420,8 @@ const Teacher = () => {
         destroyOnClose
         title={
           selectedStudent
-            ? `学生测评结果：${selectedStudent.real_name}（${selectedStudent.grade}年级 ${selectedStudent.class_no}班）`
-            : "学生测评结果"
+            ? `测评结果：${selectedStudent.real_name}（${selectedStudent.grade}年级 ${selectedStudent.class_no}班）`
+            : "测评结果"
         }
       >
         {studentResultLoading ? (
