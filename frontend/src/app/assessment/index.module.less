@@ -26,7 +26,7 @@
   line-height: 1.8;
   color: #333;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -97,13 +97,22 @@
   }
 
   &.ant-radio-wrapper-checked {
-    border-color: #1890ff;
-    background: #e6f7ff;
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
+    background: #c5d9f5 !important;
+    border: 2px solid #336699 !important;
   }
 
   .ant-radio {
     display: none !important;
+  }
+}
+
+// 全局样式覆盖选中的 Radio wrapper - 使用更高优先级
+:global {
+  .options {
+    .ant-radio-wrapper-checked {
+      background: #c5d9f5 !important;
+      border: 2px solid #336699 !important;
+    }
   }
 }
 
@@ -222,4 +231,11 @@
   padding: 20px;
   margin-top: 16px;
   border-top: 1px solid #f0f0f0;
+}
+
+:global {
+  .ant-radio-wrapper-checked {
+    background: #c5d9f5 !important;
+    border: 2px solid #108ee9 !important;
+  }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Card, Button, Spin, message, Progress, Radio } from "antd";
+import { Card, Button, Spin, message, Progress, Radio, Tag } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { post } from "@/util/request";
 import * as urls from "@/constant/urls";
@@ -152,31 +152,29 @@ const Assessment = () => {
         {/* 题目内容 */}
         <div className={s.question}>
           <div className={s.questionText}>
-            <span className={`${s.questionNumber} ${domainClass}`}>{currentQ?.domain || "未知"}</span>
+            <Tag color="blue">{currentQ?.type || "未知"}</Tag>
+            <Tag color="green">{currentQ?.domain || "未知"}</Tag>
             <span className={s.questionContent}>{currentQ?.question}</span>
           </div>
 
-          {/* 选项 */}
+          {/* 选项 - 根据 options_json 动态渲染 */}
           <Radio.Group
             value={answers[currentQ?.id]}
             onChange={(e) => handleAnswerChange(currentQ.id, e.target.value)}
             className={s.options}
           >
-            <Radio value={1} className={s.optionRadio}>
-              <span className={s.optionText}>非常不符合</span>
-            </Radio>
-            <Radio value={2} className={s.optionRadio}>
-              <span className={s.optionText}>比较不符合</span>
-            </Radio>
-            <Radio value={3} className={s.optionRadio}>
-              <span className={s.optionText}>不太确定</span>
-            </Radio>
-            <Radio value={4} className={s.optionRadio}>
-              <span className={s.optionText}>比较符合</span>
-            </Radio>
-            <Radio value={5} className={s.optionRadio}>
-              <span className={s.optionText}>非常符合</span>
-            </Radio>
+            {currentQ?.options_json?.map((option, idx) => (
+              <Radio
+                key={idx}
+                value={option.value}
+                className={s.optionRadio}
+                style={{ display: "flex", width: "100%" }}
+              >
+                <span className={s.optionText} style={{ flex: 1 }}>
+                  {option.text}
+                </span>
+              </Radio>
+            ))}
           </Radio.Group>
         </div>
 
