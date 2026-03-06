@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, Row, Col, Progress, Table, Tag, Select, Spin } from "antd";
+import { Card, Row, Col, Progress, Table, Tag, Select, Spin, message, Empty, Modal } from "antd";
 import { get } from "@/util/request";
 import * as urls from "@/constant/urls";
 import s from "./index.module.less";
 import GradeStackBar from "./chart/GradeStackBar";
 import ClassStackBar from "./chart/ClassStackBar";
 import RadarChart from "./chart/RadarChart";
+import ResultsSection from "@/component/ResultsSection";
 
 const Teacher = () => {
   const [loading, setLoading] = useState(true);
@@ -14,6 +15,11 @@ const Teacher = () => {
   const [classStats, setClassStats] = useState([]);
   const [students, setStudents] = useState([]);
   const [filters, setFilters] = useState({ grade: undefined, class_no: undefined });
+
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [studentResult, setStudentResult] = useState(null);
+  const [studentResultLoading, setStudentResultLoading] = useState(false);
+  const [resultModalVisible, setResultModalVisible] = useState(false);
 
   const fetchOverview = async () => {
     try {
@@ -70,6 +76,49 @@ const Teacher = () => {
     }
   };
 
+  // 获取学生测试结果
+  const fetchStudentResult = async (studentId) => {
+    try {
+      setStudentResultLoading(true);
+      setStudentResult(null);
+
+      const res = await get(`${urls.API_TEACHER_STUDENT_RESULT}/${studentId}/result`);
+      if (res.code === 200 && res.data?.result) {
+        setStudentResult(res.data.result);
+      } else {
+        setStudentResult(null);
+        message.info("该学生暂无测评结果");
+      }
+    } catch (err) {
+      console.error("获取学生结果失败:", err);
+      setStudentResult(null);
+
+      if (err.response?.status === 404) {
+        message.info("该学生暂无测评结果");
+      } else {
+        message.error("获取测评结果失败");
+      }
+    } finally {
+      setStudentResultLoading(false);
+    }
+  };
+
+  // 处理表格行点击
+  const handleRowClick = (record) => {
+    if (!record.has_test) return;
+
+    setSelectedStudent(record);
+    setResultModalVisible(true);
+    fetchStudentResult(record.id);
+  };
+
+  const handleCloseModal = () => {
+    setResultModalVisible(false);
+    setSelectedStudent(null);
+    setStudentResult(null);
+    setStudentResultLoading(false);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -79,6 +128,14 @@ const Teacher = () => {
 
     fetchData();
   }, [filters]);
+
+  // 筛选变化后清空当前选中结果
+  useEffect(() => {
+    setSelectedStudent(null);
+    setStudentResult(null);
+    setStudentResultLoading(false);
+    setResultModalVisible(false);
+  }, [filters.grade, filters.class_no]);
 
   const gradeOptions = useMemo(() => {
     return [...new Set((gradeStats || []).map((item) => item?.grade).filter((v) => v !== undefined && v !== null))]
@@ -156,6 +213,32 @@ const Teacher = () => {
       render: (finished_at) => (finished_at ? new Date(finished_at).toLocaleString("zh-CN") : "-")
     }
   ];
+
+  const onRow = (record) => ({
+    onClick: () => handleRowClick(record),
+    style: {
+      cursor: record.has_test ? "pointer" : "default",
+      backgroundColor:
+        selectedStudent?.id === record.id
+          ? "rgba(19, 182, 236, 0.12)"
+          : record.has_test
+            ? "rgba(19, 182, 236, 0.02)"
+            : "transparent"
+    },
+    onMouseEnter: (e) => {
+      if (record.has_test && selectedStudent?.id !== record.id) {
+        e.currentTarget.style.backgroundColor = "rgba(19, 182, 236, 0.08)";
+      }
+    },
+    onMouseLeave: (e) => {
+      e.currentTarget.style.backgroundColor =
+        selectedStudent?.id === record.id
+          ? "rgba(19, 182, 236, 0.12)"
+          : record.has_test
+            ? "rgba(19, 182, 236, 0.02)"
+            : "transparent";
+    }
+  });
 
   if (loading) {
     return (
@@ -288,8 +371,32 @@ const Teacher = () => {
           rowKey="id"
           pagination={{ pageSize: 10 }}
           scroll={{ x: 800 }}
+          onRow={onRow}
         />
       </Card>
+
+      <Modal
+        open={resultModalVisible}
+        onCancel={handleCloseModal}
+        footer={null}
+        width={960}
+        destroyOnClose
+        title={
+          selectedStudent
+            ? `学生测评结果：${selectedStudent.real_name}（${selectedStudent.grade}年级 ${selectedStudent.class_no}班）`
+            : "学生测评结果"
+        }
+      >
+        {studentResultLoading ? (
+          <div className={s.resultLoading}>
+            <Spin />
+          </div>
+        ) : studentResult ? (
+          <ResultsSection result={studentResult} />
+        ) : (
+          <Empty description="暂无测评结果" />
+        )}
+      </Modal>
     </div>
   );
 };

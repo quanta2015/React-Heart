@@ -1,0 +1,194 @@
+// ResultsSection 独立样式
+
+// 颜色变量
+@primary: #13b6ec;
+@primary-light: rgba(19, 182, 236, 0.1);
+@primary-border: rgba(19, 182, 236, 0.2);
+@bg-light: #f6f8f8;
+@text-primary: #1e293b;
+@text-secondary: #64748b;
+@card-bg-light: #ffffff;
+
+.resultsSection {
+  padding: 0 16px 80px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  padding-bottom: 12px;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: @text-primary;
+  margin: 0;
+}
+
+.updateTime {
+  font-size: 12px;
+  font-weight: 500;
+  color: @primary;
+  background-color: @primary-light;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.resultCard {
+  background-color: @card-bg-light;
+  border-radius: 12px;
+  border: 1px solid @primary-border;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+// 结果头部：风险等级、风险分数、评测时间
+.resultHeader {
+  margin-bottom: 24px;
+}
+
+.resultInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.infoLabel {
+  font-size: 14px;
+  color: @text-secondary;
+  min-width: 80px;
+}
+
+.infoValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: @text-primary;
+}
+
+.scoreValue {
+  flex: 1;
+  max-width: 200px;
+}
+
+// 六维度评估结果
+.domainsSection {
+  margin-top: 24px;
+}
+
+.sectionSubTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: @text-primary;
+  margin: 0 0 16px;
+}
+
+.domainsContent {
+  display: flex;
+  gap: 24px;
+}
+
+// 左边：雷达图
+.radarWrapper {
+  flex: 0 0 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radarChart {
+  width: 280px;
+  height: 280px;
+}
+
+// 右边：维度风险卡片
+.domainCards {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+}
+
+.domainCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: @bg-light;
+  border-radius: 8px;
+  border: 1px solid @primary-border;
+}
+
+.domainName {
+  font-size: 14px;
+  font-weight: 500;
+  color: @text-primary;
+}
+
+// 评估标签
+.tagsSection {
+  margin-top: 24px;
+}
+
+.tagsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: @bg-light;
+  color: @text-secondary;
+  border: 1px solid @primary-border;
+}
+
+.viewReportBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 24px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: @primary;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: @primary-light;
+
+  &:hover {
+    background-color: rgba(19, 182, 236, 0.15);
+  }
+}
+
+@media (max-width: 768px) {
+  .domainsContent {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .radarWrapper {
+    flex: none;
+    width: 100%;
+  }
+
+  .domainCards {
+    width: 100%;
+  }
+}
