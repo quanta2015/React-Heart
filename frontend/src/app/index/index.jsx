@@ -224,6 +224,18 @@ const Index = () => {
     return "U";
   };
 
+  // 格式化日期为 YYYY 年 MM 月 DD 日 HH:mm
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}年${month}月${day}日 ${hours}:${minutes}`;
+  };
+
   return (
     <div className={s.container}>
       {/* 加载中 */}
@@ -261,7 +273,7 @@ const Index = () => {
             <div className={s.resultsSection}>
               <div className={s.sectionHeader}>
                 <h2 className={s.sectionTitle}>评测结果</h2>
-                <span className={s.updateTime}>更新于 {result.finished_at || result.created_at || "-"}</span>
+                <span className={s.updateTime}>更新于 {formatDate(result.finished_at || result.created_at)}</span>
               </div>
               <div className={s.resultCard}>
                 {/* 基本信息：风险等级、风险分数、评测时间 */}
@@ -287,7 +299,7 @@ const Index = () => {
                     </div>
                     <div className={s.infoRow}>
                       <span className={s.infoLabel}>评测时间</span>
-                      <span className={s.infoValue}>{result.finished_at || result.created_at || "-"}</span>
+                      <span className={s.infoValue}>{formatDate(result.finished_at || result.created_at)}</span>
                     </div>
                   </div>
                 </div>
@@ -326,7 +338,7 @@ const Index = () => {
             <>
               <div className={s.assessmentCard}>
                 <div className={s.cardImage}>
-                  <span className={s.psychologyIcon}>🧠</span>
+                  <span className={s.psychologyIcon}></span>
                 </div>
                 <div className={s.cardContent}>
                   <p className={s.cardTitle}>开始心理健康测评</p>
@@ -338,13 +350,6 @@ const Index = () => {
                   <button className={s.startBtn} onClick={handleStartTest}>
                     立即开始
                   </button>
-                </div>
-              </div>
-
-              <div className={s.resultsSection}>
-                <div className={s.sectionHeader}>
-                  <h2 className={s.sectionTitle}>往期结果</h2>
-                  <span className={s.updateTime}>暂无数据</span>
                 </div>
               </div>
             </>
