@@ -6,123 +6,6 @@ import { message } from "antd";
 
 const REPORT_TITLE = "心理测评报告";
 
-const PDF_THEME = {
-  page: {
-    marginX: 15,
-    topY: 24,
-    bottomY: 15,
-    contentWidth: 180
-  },
-
-  radius: {
-    xs: 1.5,
-    sm: 2,
-    md: 2.5,
-    lg: 3
-  },
-
-  fontSize: {
-    header: 10,
-    pageTitle: 16,
-    pageSubtitle: 9.5,
-    sectionTitle: 13,
-    cardTitle: 11.5,
-    body: 10.5,
-    bodySmall: 10,
-    caption: 9,
-    badge: 9
-  },
-
-  lineHeight: {
-    tight: 4.2,
-    normal: 5.2,
-    relaxed: 5.8,
-    title: 6
-  },
-
-  spacing: {
-    xs: 2,
-    sm: 4,
-    md: 6,
-    lg: 8,
-    xl: 12
-  },
-
-  colors: {
-    text: {
-      title: [32, 41, 52],
-      primary: [55, 65, 81],
-      secondary: [107, 114, 128],
-      light: [148, 163, 184],
-      inverse: [255, 255, 255]
-    },
-
-    line: {
-      light: [226, 232, 240],
-      normal: [203, 213, 225],
-      strong: [148, 163, 184]
-    },
-
-    brand: {
-      primary: [91, 141, 166], // 主品牌蓝灰
-      primaryLight: [236, 244, 247],
-      primarySoft: [245, 249, 251],
-      deep: [58, 90, 106]
-    },
-
-    surface: {
-      page: [255, 255, 255],
-      card: [250, 252, 253],
-      muted: [246, 248, 250],
-      subtle: [242, 245, 247]
-    },
-
-    section: {
-      studentBg: [243, 248, 251],
-      studentBorder: [191, 214, 224],
-      studentTitle: [73, 111, 130],
-
-      teacherBg: [245, 249, 246],
-      teacherBorder: [198, 220, 205],
-      teacherTitle: [87, 120, 98],
-
-      parentBg: [250, 248, 244],
-      parentBorder: [223, 212, 191],
-      parentTitle: [136, 110, 76]
-    },
-
-    risk: {
-      low: {
-        fill: [237, 245, 251],
-        border: [173, 206, 225],
-        text: [74, 119, 145]
-      },
-      medium: {
-        fill: [252, 246, 235],
-        border: [230, 195, 129],
-        text: [149, 109, 42]
-      },
-      high: {
-        fill: [252, 239, 238],
-        border: [219, 153, 149],
-        text: [152, 74, 69]
-      },
-      mild: {
-        fill: [242, 247, 240],
-        border: [181, 208, 178],
-        text: [83, 124, 80]
-      }
-    },
-
-    alert: {
-      fill: [253, 247, 237],
-      border: [230, 190, 138],
-      title: [138, 101, 45],
-      text: [120, 96, 67]
-    }
-  }
-};
-
 const RISK_TEXT_MAP = {
   R0: "低风险",
   R1: "轻度关注",
@@ -197,17 +80,16 @@ export const exportPageAsImage = async (pdf, pageEl, isFirstPage = false) => {
 
 export const drawPdfHeader = (pdf, pageNo, schoolName) => {
   const pageWidth = pdf.internal.pageSize.getWidth();
-  const { marginX } = PDF_THEME.page;
 
-  setPdfFont(pdf, "normal", PDF_THEME.fontSize.header);
-  pdf.setTextColor(...PDF_THEME.colors.text.secondary);
+  setPdfFont(pdf, "normal", 10);
+  pdf.setTextColor(120, 120, 120);
 
-  pdf.text(schoolName || "XX 学校", marginX, 12);
+  pdf.text(schoolName || "XX 学校", 15, 12);
   pdf.text(REPORT_TITLE, pageWidth / 2, 12, { align: "center" });
-  pdf.text(`第 ${pageNo} 页`, pageWidth - marginX, 12, { align: "right" });
+  pdf.text(`第 ${pageNo} 页`, pageWidth - 15, 12, { align: "right" });
 
-  pdf.setDrawColor(...PDF_THEME.colors.line.light);
-  pdf.line(marginX, 16, pageWidth - marginX, 16);
+  pdf.setDrawColor(220, 220, 220);
+  pdf.line(15, 16, pageWidth - 15, 16);
 };
 
 export const splitText = (pdf, text, maxWidth) => {
@@ -216,32 +98,30 @@ export const splitText = (pdf, text, maxWidth) => {
   return pdf.splitTextToSize(String(text), maxWidth);
 };
 
-export const ensurePageSpace = (pdf, currentY, neededHeight, pageNoRef, schoolName) => {
+export const ensurePageSpace = (pdf, currentY, neededHeight, pageNoRef) => {
   const pageHeight = pdf.internal.pageSize.getHeight();
-  const bottomLimit = pageHeight - PDF_THEME.page.bottomY;
+  const bottomLimit = pageHeight - 15;
 
   if (currentY + neededHeight > bottomLimit) {
     pdf.addPage();
     pageNoRef.current += 1;
-    drawPdfHeader(pdf, pageNoRef.current, schoolName);
-    return PDF_THEME.page.topY;
+    drawPdfHeader(pdf, pageNoRef.current);
+    return 24;
   }
 
   return currentY;
 };
 
-export const drawSectionTitle = (pdf, title, y, pageNoRef, schoolName) => {
-  y += PDF_THEME.spacing.lg;
-  y = ensurePageSpace(pdf, y, 12, pageNoRef, schoolName);
+export const drawSectionTitle = (pdf, title, y, pageNoRef) => {
+  y += 6; // 增加段落前间距
+  y = ensurePageSpace(pdf, y, 12, pageNoRef);
 
-  const x = PDF_THEME.page.marginX;
+  setPdfFont(pdf, "bold", 14);
+  pdf.setTextColor(40, 40, 40);
+  pdf.text(String(title), 15, y);
 
-  setPdfFont(pdf, "bold", PDF_THEME.fontSize.sectionTitle);
-  pdf.setTextColor(...PDF_THEME.colors.text.title);
-  pdf.text(String(title), x, y);
-
-  pdf.setDrawColor(...PDF_THEME.colors.line.light);
-  pdf.line(x, y + 2, x + PDF_THEME.page.contentWidth, y + 2);
+  pdf.setDrawColor(230, 230, 230);
+  pdf.line(15, y + 2, 195, y + 2);
 
   return y + 8;
 };
@@ -319,16 +199,16 @@ export const drawKeyValueRow = (pdf, label, value, y, pageNoRef) => {
   return y + blockHeight + 2;
 };
 
-export const drawInfoBox = (pdf, title, content, y, pageNoRef, options = {}, schoolName) => {
+export const drawInfoBox = (pdf, title, content, y, pageNoRef, options = {}) => {
   const {
-    x = PDF_THEME.page.marginX,
-    width = PDF_THEME.page.contentWidth,
+    x = 15,
+    width = 180,
     padding = 5,
-    titleFontSize = 11,
-    contentFontSize = PDF_THEME.fontSize.bodySmall,
-    lineHeight = PDF_THEME.lineHeight.normal,
-    fillColor = PDF_THEME.colors.alert.fill,
-    borderColor = PDF_THEME.colors.alert.border
+    titleFontSize = 12,
+    contentFontSize = 11,
+    lineHeight = 6,
+    fillColor = [248, 250, 252],
+    borderColor = [220, 220, 220]
   } = options;
 
   setPdfFont(pdf, "bold", titleFontSize);
@@ -341,14 +221,14 @@ export const drawInfoBox = (pdf, title, content, y, pageNoRef, options = {}, sch
   const contentHeight = contentLines.length * lineHeight;
   const totalHeight = padding + titleHeight + 3 + contentHeight + padding + 4;
 
-  y = ensurePageSpace(pdf, y, totalHeight + 2, pageNoRef, schoolName);
+  y = ensurePageSpace(pdf, y, totalHeight + 2, pageNoRef);
 
   pdf.setFillColor(...fillColor);
   pdf.setDrawColor(...borderColor);
-  pdf.roundedRect(x, y, width, totalHeight, PDF_THEME.radius.sm, PDF_THEME.radius.sm, "FD");
+  pdf.roundedRect(x, y, width, totalHeight, 2, 2, "FD");
 
   setPdfFont(pdf, "bold", titleFontSize);
-  pdf.setTextColor(...PDF_THEME.colors.alert.title);
+  pdf.setTextColor(40, 40, 40);
   titleLines.forEach((line, idx) => {
     pdf.text(String(line), x + padding, y + padding + 5 + idx * lineHeight);
   });
@@ -356,12 +236,12 @@ export const drawInfoBox = (pdf, title, content, y, pageNoRef, options = {}, sch
   const contentStartY = y + padding + titleHeight + 4;
 
   setPdfFont(pdf, "normal", contentFontSize);
-  pdf.setTextColor(...PDF_THEME.colors.alert.text);
+  pdf.setTextColor(75, 75, 75);
   contentLines.forEach((line, idx) => {
     pdf.text(String(line), x + padding, contentStartY + 4 + idx * lineHeight);
   });
 
-  return y + totalHeight + PDF_THEME.spacing.md;
+  return y + totalHeight + 6;
 };
 
 export const drawThirdPageContent = (pdf, suggestion, pageNoRef, schoolName) => {
@@ -369,29 +249,33 @@ export const drawThirdPageContent = (pdf, suggestion, pageNoRef, schoolName) => 
   pageNoRef.current += 1;
   drawPdfHeader(pdf, pageNoRef.current, schoolName);
 
-  let y = PDF_THEME.page.topY;
+  let y = 24;
 
-  setPdfFont(pdf, "bold", PDF_THEME.fontSize.pageTitle);
-  pdf.setTextColor(...PDF_THEME.colors.text.title);
-  pdf.text("测评分析与建议", PDF_THEME.page.marginX, y);
+  // 页面主标题
+  setPdfFont(pdf, "bold", 16);
+  pdf.setTextColor(28, 28, 28);
+  pdf.text("测评分析与建议", 15, y);
 
-  setPdfFont(pdf, "normal", PDF_THEME.fontSize.pageSubtitle);
-  pdf.setTextColor(...PDF_THEME.colors.text.light);
-  pdf.text("Assessment Analysis & Guidance", PDF_THEME.page.marginX, y + 5);
+  setPdfFont(pdf, "normal", 10);
+  pdf.setTextColor(140, 140, 140);
+  pdf.text("Assessment Analysis & Guidance", 15, y + 5);
 
   y += 12;
 
-  y = drawSummaryPanel(pdf, suggestion, y, pageNoRef, schoolName);
+  // 分析摘要卡片
+  y = drawSummaryPanel(pdf, suggestion, y, pageNoRef);
 
+  // 重点关注维度标签
   if (Array.isArray(suggestion?.priority_domains) && suggestion.priority_domains.length > 0) {
     y = drawTagGroup(pdf, "重点关注维度", suggestion.priority_domains, y, pageNoRef, {
-      fillColor: PDF_THEME.colors.surface.muted,
-      borderColor: PDF_THEME.colors.line.light,
-      textColor: PDF_THEME.colors.text.secondary
+      fillColor: [246, 248, 250],
+      borderColor: [220, 223, 230],
+      textColor: [80, 80, 80]
     });
     y += 2;
   }
 
+  // 需要人工复核时，放重点提示框
   if (suggestion?.refer_required) {
     y = drawInfoBox(
       pdf,
@@ -400,67 +284,66 @@ export const drawThirdPageContent = (pdf, suggestion, pageNoRef, schoolName) => 
       y,
       pageNoRef,
       {
-        fillColor: PDF_THEME.colors.alert.fill,
-        borderColor: PDF_THEME.colors.alert.border,
-        titleFontSize: 11.5,
-        contentFontSize: PDF_THEME.fontSize.bodySmall,
-        lineHeight: PDF_THEME.lineHeight.normal
-      },
-      schoolName
+        fillColor: [255, 248, 230],
+        borderColor: [250, 173, 20],
+        titleFontSize: 12,
+        contentFontSize: 10.5,
+        lineHeight: 5.8
+      }
     );
   }
 
-  y = drawSectionTitle(pdf, "建议措施", y + 2, pageNoRef, schoolName);
+  // 建议措施标题
+  y = drawSectionTitle(pdf, "建议措施", y + 1, pageNoRef);
 
+  // 三类建议卡片
   y = drawCard(
     pdf,
     {
       title: "给学生的建议",
-      icon: "▪",
+      icon: "◎",
       items: suggestion?.student_advice || [],
-      fillColor: PDF_THEME.colors.section.studentBg,
-      borderColor: PDF_THEME.colors.section.studentBorder,
-      titleColor: PDF_THEME.colors.section.studentTitle,
-      textColor: PDF_THEME.colors.text.primary
+      fillColor: [250, 252, 255],
+      borderColor: [186, 231, 255],
+      titleColor: [9, 88, 217],
+      textColor: [70, 70, 70]
     },
     y,
-    pageNoRef,
-    schoolName
+    pageNoRef
   );
 
   y = drawCard(
     pdf,
     {
       title: "给教师的建议",
-      icon: "▪",
+      icon: "◎",
       items: suggestion?.teacher_advice || [],
-      fillColor: PDF_THEME.colors.section.teacherBg,
-      borderColor: PDF_THEME.colors.section.teacherBorder,
-      titleColor: PDF_THEME.colors.section.teacherTitle,
-      textColor: PDF_THEME.colors.text.primary
+      fillColor: [252, 255, 246],
+      borderColor: [183, 235, 143],
+      titleColor: [56, 158, 13],
+      textColor: [70, 70, 70]
     },
     y,
-    pageNoRef,
-    schoolName
+    pageNoRef
   );
 
   y = drawCard(
     pdf,
     {
       title: "给家长的建议",
-      icon: "▪",
+      icon: "◎",
       items: suggestion?.parent_advice || [],
-      fillColor: PDF_THEME.colors.section.parentBg,
-      borderColor: PDF_THEME.colors.section.parentBorder,
-      titleColor: PDF_THEME.colors.section.parentTitle,
-      textColor: PDF_THEME.colors.text.primary
+      fillColor: [255, 252, 245],
+      borderColor: [255, 214, 102],
+      titleColor: [173, 107, 0],
+      textColor: [70, 70, 70]
     },
     y,
-    pageNoRef,
-    schoolName
+    pageNoRef
   );
 
-  y = drawFollowUpPanel(pdf, suggestion, y + 2, pageNoRef, schoolName);
+  // 后续跟进面板
+  y = drawFollowUpPanel(pdf, suggestion, y + 2, pageNoRef);
 };
 
 const formatDate = (dateString) => {
@@ -525,46 +408,46 @@ export const getRiskStyle = (riskLevel) => {
   if (risk === "r3" || risk === "high") {
     return {
       label: RISK_TEXT_MAP[riskLevel] || "高风险",
-      fillColor: PDF_THEME.colors.risk.high.fill,
-      borderColor: PDF_THEME.colors.risk.high.border,
-      textColor: PDF_THEME.colors.risk.high.text
+      fillColor: [255, 237, 235],
+      borderColor: [255, 120, 117],
+      textColor: [207, 19, 34]
     };
   }
 
   if (risk === "r2" || risk === "medium") {
     return {
       label: RISK_TEXT_MAP[riskLevel] || "中风险",
-      fillColor: PDF_THEME.colors.risk.medium.fill,
-      borderColor: PDF_THEME.colors.risk.medium.border,
-      textColor: PDF_THEME.colors.risk.medium.text
+      fillColor: [255, 247, 230],
+      borderColor: [250, 173, 20],
+      textColor: [173, 107, 0]
     };
   }
 
   if (risk === "r1") {
     return {
       label: RISK_TEXT_MAP[riskLevel] || "轻度关注",
-      fillColor: PDF_THEME.colors.risk.mild.fill,
-      borderColor: PDF_THEME.colors.risk.mild.border,
-      textColor: PDF_THEME.colors.risk.mild.text
+      fillColor: [246, 255, 237],
+      borderColor: [149, 222, 100],
+      textColor: [56, 158, 13]
     };
   }
 
   return {
     label: RISK_TEXT_MAP[riskLevel] || "低风险",
-    fillColor: PDF_THEME.colors.risk.low.fill,
-    borderColor: PDF_THEME.colors.risk.low.border,
-    textColor: PDF_THEME.colors.risk.low.text
+    fillColor: [240, 245, 255],
+    borderColor: [145, 213, 255],
+    textColor: [9, 88, 217]
   };
 };
 
 export const drawBadge = (pdf, text, x, y, options = {}) => {
   const {
-    height = 7,
+    height = 8,
     paddingX = 4,
-    fillColor = PDF_THEME.colors.risk.low.fill,
-    borderColor = PDF_THEME.colors.risk.low.border,
-    textColor = PDF_THEME.colors.risk.low.text,
-    fontSize = PDF_THEME.fontSize.badge,
+    fillColor = [240, 245, 255],
+    borderColor = [145, 213, 255],
+    textColor = [9, 88, 217],
+    fontSize = 10,
     bold = true
   } = options;
 
@@ -574,41 +457,42 @@ export const drawBadge = (pdf, text, x, y, options = {}) => {
 
   pdf.setFillColor(...fillColor);
   pdf.setDrawColor(...borderColor);
-  pdf.roundedRect(x, y, width, height, PDF_THEME.radius.md, PDF_THEME.radius.md, "FD");
+  pdf.roundedRect(x, y, width, height, 3, 3, "FD");
 
   pdf.setTextColor(...textColor);
-  pdf.text(String(text || ""), x + paddingX, y + 4.9);
+  setPdfFont(pdf, bold ? "bold" : "normal", fontSize);
+  pdf.text(String(text || ""), x + paddingX, y + 5.5);
 
   return width;
 };
 
-export const drawTagGroup = (pdf, title, tags, y, pageNoRef, options = {}, schoolName) => {
+export const drawTagGroup = (pdf, title, tags, y, pageNoRef, options = {}) => {
   const {
-    x = PDF_THEME.page.marginX,
-    width = PDF_THEME.page.contentWidth,
-    titleFontSize = PDF_THEME.fontSize.bodySmall,
-    tagHeight = 7,
+    x = 15,
+    width = 180,
+    titleFontSize = 11,
+    tagHeight = 8,
     gapX = 3,
     gapY = 3,
-    fillColor = PDF_THEME.colors.surface.muted,
-    borderColor = PDF_THEME.colors.line.light,
-    textColor = PDF_THEME.colors.text.secondary
+    fillColor = [245, 247, 250],
+    borderColor = [220, 220, 220],
+    textColor = [80, 80, 80]
   } = options;
 
   const list = Array.isArray(tags) ? tags.filter(Boolean) : [];
   if (!list.length) return y;
 
-  y = ensurePageSpace(pdf, y, 20, pageNoRef, schoolName);
+  y = ensurePageSpace(pdf, y, 20, pageNoRef);
 
   setPdfFont(pdf, "bold", titleFontSize);
-  pdf.setTextColor(...PDF_THEME.colors.text.primary);
+  pdf.setTextColor(45, 45, 45);
   pdf.text(String(title), x, y);
 
   let cursorX = x;
   let cursorY = y + 5;
 
   for (const tag of list) {
-    setPdfFont(pdf, "normal", PDF_THEME.fontSize.caption);
+    setPdfFont(pdf, "normal", 10);
     const tagWidth = pdf.getTextWidth(String(tag)) + 8;
 
     if (cursorX + tagWidth > x + width) {
@@ -616,15 +500,15 @@ export const drawTagGroup = (pdf, title, tags, y, pageNoRef, options = {}, schoo
       cursorY += tagHeight + gapY;
     }
 
-    cursorY = ensurePageSpace(pdf, cursorY, tagHeight + 2, pageNoRef, schoolName);
+    cursorY = ensurePageSpace(pdf, cursorY, tagHeight + 2, pageNoRef);
 
     pdf.setFillColor(...fillColor);
     pdf.setDrawColor(...borderColor);
-    pdf.roundedRect(cursorX, cursorY, tagWidth, tagHeight, PDF_THEME.radius.md, PDF_THEME.radius.md, "FD");
+    pdf.roundedRect(cursorX, cursorY, tagWidth, tagHeight, 2.5, 2.5, "FD");
 
     pdf.setTextColor(...textColor);
-    setPdfFont(pdf, "normal", PDF_THEME.fontSize.caption);
-    pdf.text(String(tag), cursorX + 4, cursorY + 4.8);
+    setPdfFont(pdf, "normal", 10);
+    pdf.text(String(tag), cursorX + 4, cursorY + 5.5);
 
     cursorX += tagWidth + gapX;
   }
@@ -632,25 +516,25 @@ export const drawTagGroup = (pdf, title, tags, y, pageNoRef, options = {}, schoo
   return cursorY + tagHeight + 4;
 };
 
-export const drawCard = (pdf, config, y, pageNoRef, schoolName) => {
+export const drawCard = (pdf, config, y, pageNoRef) => {
   const {
-    x = PDF_THEME.page.marginX,
-    width = PDF_THEME.page.contentWidth,
+    x = 15,
+    width = 180,
     title = "",
     items = [],
-    icon = "▪",
-    fillColor = PDF_THEME.colors.surface.card,
-    borderColor = PDF_THEME.colors.line.light,
-    titleColor = PDF_THEME.colors.text.title,
-    textColor = PDF_THEME.colors.text.primary
+    icon = "■",
+    fillColor = [250, 250, 250],
+    borderColor = [228, 232, 237],
+    titleColor = [35, 35, 35],
+    textColor = [85, 85, 85]
   } = config;
 
   const list = Array.isArray(items) ? items.filter(Boolean) : [];
 
-  setPdfFont(pdf, "bold", PDF_THEME.fontSize.cardTitle);
+  setPdfFont(pdf, "bold", 12);
   const titleLines = pdf.splitTextToSize(`${icon} ${title}`, width - 12);
 
-  setPdfFont(pdf, "normal", PDF_THEME.fontSize.bodySmall);
+  setPdfFont(pdf, "normal", 10.5);
   let contentLines = [];
   list.forEach((item) => {
     const lines = pdf.splitTextToSize(`• ${item}`, width - 12);
@@ -661,40 +545,40 @@ export const drawCard = (pdf, config, y, pageNoRef, schoolName) => {
     contentLines.pop();
   }
 
-  const titleHeight = titleLines.length * PDF_THEME.lineHeight.title;
-  const lineHeight = PDF_THEME.lineHeight.tight;
+  const titleHeight = titleLines.length * 6;
+  const lineHeight = 4;
   const contentHeight = Math.max(contentLines.length * lineHeight, 8);
-  const cardHeight = 6 + titleHeight + 3 + contentHeight + 6;
+  const cardHeight = 6 + titleHeight + 4 + contentHeight + 6;
 
-  y = ensurePageSpace(pdf, y, cardHeight + 2, pageNoRef, schoolName);
+  y = ensurePageSpace(pdf, y, cardHeight + 2, pageNoRef);
 
   pdf.setFillColor(...fillColor);
   pdf.setDrawColor(...borderColor);
-  pdf.roundedRect(x, y, width, cardHeight, PDF_THEME.radius.md, PDF_THEME.radius.md, "FD");
+  pdf.roundedRect(x, y, width, cardHeight, 3, 3, "FD");
 
   pdf.setFillColor(...borderColor);
-  pdf.rect(x, y, 2.2, cardHeight, "F");
+  pdf.rect(x, y, 2.8, cardHeight, "F");
 
-  setPdfFont(pdf, "bold", PDF_THEME.fontSize.cardTitle);
+  setPdfFont(pdf, "bold", 12);
   pdf.setTextColor(...titleColor);
   titleLines.forEach((line, idx) => {
-    pdf.text(String(line), x + 6, y + 7 + idx * PDF_THEME.lineHeight.title);
+    pdf.text(String(line), x + 6, y + 7 + idx * 6);
   });
 
-  setPdfFont(pdf, "normal", PDF_THEME.fontSize.bodySmall);
+  setPdfFont(pdf, "normal", 10.5);
   pdf.setTextColor(...textColor);
-  const textStartY = y + 6 + titleHeight + 3;
+  const textStartY = y + 6 + titleHeight + 4;
 
   contentLines.forEach((line, idx) => {
     pdf.text(String(line), x + 6, textStartY + idx * lineHeight);
   });
 
-  return y + cardHeight + PDF_THEME.spacing.sm;
+  return y + cardHeight + 5;
 };
 
-export const drawSummaryPanel = (pdf, suggestion, y, pageNoRef, schoolName) => {
-  const x = PDF_THEME.page.marginX;
-  const width = PDF_THEME.page.contentWidth;
+export const drawSummaryPanel = (pdf, suggestion, y, pageNoRef) => {
+  const x = 15;
+  const width = 180;
   const padding = 7;
   const riskStyle = getRiskStyle(suggestion?.risk_level);
 
@@ -702,112 +586,108 @@ export const drawSummaryPanel = (pdf, suggestion, y, pageNoRef, schoolName) => {
   const titleText = suggestion?.summary_title || "分析摘要";
   const summaryText = suggestion?.summary_content || "-";
 
-  setPdfFont(pdf, "bold", PDF_THEME.fontSize.cardTitle);
+  setPdfFont(pdf, "bold", 12);
   const titleLines = pdf.splitTextToSize(titleText, width - padding * 2);
 
-  setPdfFont(pdf, "normal", PDF_THEME.fontSize.body);
+  setPdfFont(pdf, "normal", 10.8);
   const contentLines = pdf.splitTextToSize(summaryText, width - padding * 2);
 
-  const panelHeight =
-    10 +
-    8 +
-    titleLines.length * PDF_THEME.lineHeight.title +
-    4 +
-    contentLines.length * PDF_THEME.lineHeight.relaxed +
-    8;
+  const panelHeight = 10 + 8 + titleLines.length * 6 + 4 + contentLines.length * 5.8 + 8;
 
-  y = ensurePageSpace(pdf, y, panelHeight + 3, pageNoRef, schoolName);
+  y = ensurePageSpace(pdf, y, panelHeight + 3, pageNoRef);
 
-  pdf.setFillColor(...PDF_THEME.colors.brand.primarySoft);
-  pdf.setDrawColor(...PDF_THEME.colors.line.normal);
-  pdf.roundedRect(x, y, width, panelHeight, PDF_THEME.radius.sm, PDF_THEME.radius.sm, "FD");
+  pdf.setFillColor(247, 250, 252);
+  pdf.setDrawColor(220, 226, 232);
+  pdf.roundedRect(x, y, width, panelHeight, 2, 2, "FD");
 
-  pdf.setFillColor(...PDF_THEME.colors.brand.primary);
-  pdf.roundedRect(x, y, width, 10, PDF_THEME.radius.sm, PDF_THEME.radius.sm, "F");
+  pdf.setFillColor(64, 158, 255);
+  pdf.roundedRect(x, y, width, 10, 2, 2, "F");
   pdf.rect(x, y + 5, width, 5, "F");
 
-  setPdfFont(pdf, "bold", 11.5);
-  pdf.setTextColor(...PDF_THEME.colors.text.inverse);
+  setPdfFont(pdf, "bold", 12);
+  pdf.setTextColor(255, 255, 255);
   pdf.text("分析摘要", x + 6, y + 6.5);
 
-  setPdfFont(pdf, "bold", PDF_THEME.fontSize.bodySmall);
-  pdf.setTextColor(...PDF_THEME.colors.text.secondary);
+  setPdfFont(pdf, "bold", 10);
+  pdf.setTextColor(80, 80, 80);
   pdf.text(levelText, x + 6, y + 16);
 
-  drawBadge(pdf, riskStyle.label, x + 34, y + 11, {
+  drawBadge(pdf, riskStyle.label, x + 38, y + 11, {
     fillColor: riskStyle.fillColor,
     borderColor: riskStyle.borderColor,
     textColor: riskStyle.textColor,
-    fontSize: PDF_THEME.fontSize.badge
+    fontSize: 9.5
   });
 
-  setPdfFont(pdf, "bold", 12.5);
-  pdf.setTextColor(...PDF_THEME.colors.text.title);
+  setPdfFont(pdf, "bold", 13);
+  pdf.setTextColor(30, 30, 30);
   titleLines.forEach((line, idx) => {
-    pdf.text(String(line), x + padding, y + 25 + idx * PDF_THEME.lineHeight.title);
+    pdf.text(String(line), x + padding, y + 25 + idx * 6);
   });
 
-  setPdfFont(pdf, "normal", PDF_THEME.fontSize.body);
-  pdf.setTextColor(...PDF_THEME.colors.text.primary);
-  const contentStartY = y + 25 + titleLines.length * PDF_THEME.lineHeight.title + 3;
+  setPdfFont(pdf, "normal", 10.8);
+  pdf.setTextColor(90, 90, 90);
+  const contentStartY = y + 25 + titleLines.length * 6 + 3;
   contentLines.forEach((line, idx) => {
-    pdf.text(String(line), x + padding, contentStartY + idx * PDF_THEME.lineHeight.relaxed);
+    pdf.text(String(line), x + padding, contentStartY + idx * 5.8);
   });
 
-  return y + panelHeight + PDF_THEME.spacing.md;
+  return y + panelHeight + 6;
 };
 
-export const drawFollowUpPanel = (pdf, suggestion, y, pageNoRef, schoolName) => {
-  const x = PDF_THEME.page.marginX;
-  const width = PDF_THEME.page.contentWidth;
+export const drawFollowUpPanel = (pdf, suggestion, y, pageNoRef) => {
+  const x = 15;
+  const width = 180;
   const rowHeight = 10;
 
   const actions = Array.isArray(suggestion?.actions) && suggestion.actions.length ? suggestion.actions.join("、") : "-";
+
   const followup = suggestion?.followup_days ? `${suggestion.followup_days} 天内` : "-";
+
   const matchedRules =
     Array.isArray(suggestion?.matched_rules) && suggestion.matched_rules.length
       ? suggestion.matched_rules.join("、")
       : "-";
 
-  setPdfFont(pdf, "normal", PDF_THEME.fontSize.bodySmall);
+  setPdfFont(pdf, "normal", 10.5);
   const actionLines = pdf.splitTextToSize(actions, 120);
   const followLines = pdf.splitTextToSize(followup, 120);
   const ruleLines = pdf.splitTextToSize(matchedRules, 120);
 
-  const calcRowHeight = (lines) => Math.max(lines.length * PDF_THEME.lineHeight.normal + 4, rowHeight);
+  const calcRowHeight = (lines) => Math.max(lines.length * 5.6 + 4, rowHeight);
 
   const h1 = calcRowHeight(actionLines);
   const h2 = calcRowHeight(followLines);
   const h3 = calcRowHeight(ruleLines);
   const totalHeight = 10 + h1 + h2 + h3 + 4;
 
-  y = ensurePageSpace(pdf, y, totalHeight + 2, pageNoRef, schoolName);
+  y = ensurePageSpace(pdf, y, totalHeight + 2, pageNoRef);
 
-  pdf.setFillColor(...PDF_THEME.colors.surface.card);
-  pdf.setDrawColor(...PDF_THEME.colors.line.light);
-  pdf.roundedRect(x, y, width, totalHeight, PDF_THEME.radius.md, PDF_THEME.radius.md, "FD");
+  pdf.setFillColor(252, 252, 252);
+  pdf.setDrawColor(225, 225, 225);
+  pdf.roundedRect(x, y, width, totalHeight, 3, 3, "FD");
 
-  pdf.setFillColor(...PDF_THEME.colors.surface.subtle);
+  pdf.setFillColor(245, 247, 250);
   pdf.rect(x, y, width, 10, "F");
 
-  setPdfFont(pdf, "bold", PDF_THEME.fontSize.cardTitle);
-  pdf.setTextColor(...PDF_THEME.colors.text.title);
+  setPdfFont(pdf, "bold", 12);
+  pdf.setTextColor(35, 35, 35);
   pdf.text("后续跟进", x + 5, y + 6.5);
 
   let currentY = y + 14;
 
   const drawRow = (label, lines, height) => {
-    pdf.setDrawColor(...PDF_THEME.colors.line.light);
+    pdf.setDrawColor(235, 235, 235);
     pdf.line(x + 4, currentY - 2, x + width - 4, currentY - 2);
 
-    setPdfFont(pdf, "bold", PDF_THEME.fontSize.bodySmall);
-    pdf.setTextColor(...PDF_THEME.colors.text.primary);
+    setPdfFont(pdf, "bold", 10.5);
+    pdf.setTextColor(55, 55, 55);
     pdf.text(label, x + 5, currentY + 3);
 
-    setPdfFont(pdf, "normal", PDF_THEME.fontSize.bodySmall);
-    pdf.setTextColor(...PDF_THEME.colors.text.secondary);
+    setPdfFont(pdf, "normal", 10.5);
+    pdf.setTextColor(95, 95, 95);
     lines.forEach((line, idx) => {
-      pdf.text(String(line), x + 38, currentY + 3 + idx * PDF_THEME.lineHeight.normal);
+      pdf.text(String(line), x + 38, currentY + 3 + idx * 5.6);
     });
 
     currentY += height;
@@ -817,5 +697,5 @@ export const drawFollowUpPanel = (pdf, suggestion, y, pageNoRef, schoolName) => 
   drawRow("复评周期", followLines, h2);
   drawRow("命中规则", ruleLines, h3);
 
-  return y + totalHeight + PDF_THEME.spacing.sm;
+  return y + totalHeight + 4;
 };
