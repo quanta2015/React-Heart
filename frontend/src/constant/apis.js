@@ -7,7 +7,7 @@ if (mode === "development") {
 }
 
 if (mode === "production") {
-  API_SERVER = "https://mantt.asia:8443";
+  API_SERVER = "http://8.136.110.55:443";
 }
 
 export { API_SERVER };

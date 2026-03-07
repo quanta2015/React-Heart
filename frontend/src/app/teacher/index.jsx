@@ -10,6 +10,7 @@ import ResultsSection from "@/component/ResultsSection";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { generatePsychSuggestion } from "@/util/suggestionEngine";
+import { exportTeacherStatisticReport } from "@/util/teacherReportPdf";
 
 const Teacher = () => {
   const [loading, setLoading] = useState(true);
@@ -270,7 +271,120 @@ const Teacher = () => {
     }
   });
 
-  const handleGenerateReport = async () => {};
+  const fetchStudentResultById = async (studentId) => {
+    try {
+      const res = await get(`${urls.API_TEACHER_STUDENT_RESULT}/${studentId}/result`);
+      if (res.code === 200 && res.data?.result) {
+        return res.data.result;
+      }
+      return null;
+    } catch (err) {
+      console.error(`获取学生 ${studentId} 结果失败:`, err);
+      return null;
+    }
+  };
+
+  // 并发控制，避免一次性打爆接口
+  const batchFetchStudentResults = async (studentList, concurrency = 6) => {
+    const testedStudents = (studentList || []).filter((item) => item.has_test);
+    const resultMap = {};
+
+    let currentIndex = 0;
+
+    const worker = async () => {
+      while (currentIndex < testedStudents.length) {
+        const index = currentIndex;
+        currentIndex += 1;
+
+        const student = testedStudents[index];
+        const result = await fetchStudentResultById(student.id);
+
+        let suggestion = null;
+        if (result) {
+          try {
+            suggestion = generatePsychSuggestion(result);
+          } catch (error) {
+            console.error(`生成学生 ${student.id} 建议失败:`, error);
+            suggestion = null;
+          }
+        }
+
+        resultMap[student.id] = {
+          result,
+          suggestion
+        };
+      }
+    };
+
+    const workers = Array.from({ length: Math.min(concurrency, testedStudents.length || 1) }, () => worker());
+    await Promise.all(workers);
+
+    return resultMap;
+  };
+
+  const handleGenerateReport = async () => {
+    try {
+      setGeneratingReport(true);
+
+      const schoolName = students?.[0]?.school_name || selectedStudent?.school_name || "学校";
+
+      // 为避免导出时数据不全，这里重新拉一次全量数据（不带筛选）
+      const [overviewRes, gradeRes, classRes, studentsRes] = await Promise.all([
+        get(urls.API_TEACHER_STATS_OVERVIEW),
+        get(urls.API_TEACHER_STATS_BY_GRADE),
+        get(urls.API_TEACHER_STATS_BY_CLASS),
+        get(urls.API_TEACHER_STUDENTS)
+      ]);
+
+      if (overviewRes?.code !== 200 || gradeRes?.code !== 200 || classRes?.code !== 200 || studentsRes?.code !== 200) {
+        message.error("导出失败，统计数据获取不完整");
+        return;
+      }
+
+      const exportOverview = overviewRes.data || {};
+      const exportGradeStats = gradeRes.data || [];
+      const exportClassStats = classRes.data || [];
+      const exportStudents = studentsRes.data || [];
+
+      if (!exportStudents.length) {
+        message.warning("暂无可导出的学生数据");
+        return;
+      }
+
+      message.loading({
+        content: "正在整理学生测评结果，请稍候...",
+        key: "teacher_report_export",
+        duration: 0
+      });
+
+      const studentDetailMap = await batchFetchStudentResults(exportStudents, 6);
+
+      const reportData = {
+        schoolName,
+        generatedAt: new Date().toISOString(),
+        overview: exportOverview,
+        gradeStats: exportGradeStats,
+        classStats: exportClassStats,
+        students: exportStudents,
+        studentDetailMap
+      };
+
+      await exportTeacherStatisticReport(reportData);
+
+      message.success({
+        content: "报告生成完成",
+        key: "teacher_report_export"
+      });
+    } catch (error) {
+      console.error("生成教师端报告失败:", error);
+      message.error({
+        content: "生成报告失败，请稍后重试",
+        key: "teacher_report_export"
+      });
+    } finally {
+      setGeneratingReport(false);
+    }
+  };
 
   if (loading) {
     return (
