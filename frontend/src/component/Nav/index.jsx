@@ -4,12 +4,15 @@ import cls from "classnames";
 import s from "./index.module.less";
 import logo from "@/img/logo.svg";
 import token from "@/util/token";
-import { Button, Modal, Dropdown } from "antd";
+import { Button, Modal } from "antd";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import HelpModal from "@/component/HelpModal";
 
 const Nav = () => {
   const nav = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const user = token.loadUser();
 
@@ -27,6 +30,10 @@ const Nav = () => {
     nav("/");
   };
 
+  const handleHelpClick = () => {
+    setHelpOpen(true);
+  };
+
   return (
     <div className={s.nav}>
       {/* 左侧：系统图标和名称 */}
@@ -39,6 +46,9 @@ const Nav = () => {
 
       {/* 右侧：用户信息 */}
       <div className={s.right}>
+        <Button type="text" icon={<QuestionCircleOutlined />} onClick={handleHelpClick} className={s.helpBtn}>
+          帮助
+        </Button>
         {user ? (
           <div className={s.userInfo}>
             <span className={s.userName}>{user.real_name || user.username}</span>
@@ -68,6 +78,9 @@ const Nav = () => {
       >
         退出后需要重新登录。
       </Modal>
+
+      {/* 帮助信息弹窗 */}
+      <HelpModal open={helpOpen} onCancel={() => setHelpOpen(false)} />
     </div>
   );
 };
