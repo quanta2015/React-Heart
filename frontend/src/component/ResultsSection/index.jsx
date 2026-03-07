@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Progress, Tag, Alert, Button } from "antd";
+import { Progress, Tag, Alert, Button, Grid } from "antd";
 import * as echarts from "echarts";
 import s from "./index.module.less";
 import { generatePsychSuggestion } from "@/util/suggestionEngine";
 import { handleExportPdf } from "./exportPdf";
+
+const { useBreakpoint } = Grid;
 
 const DOMAIN_NAME_MAP = {
   academicstress: "学习压力",
@@ -64,6 +66,7 @@ const renderRiskTag = (level) => {
     medium: { color: "#faad14", text: "中风险" },
     low: { color: "#52c41a", text: "低风险" }
   };
+
   const cfg = config[level] || { color: "#d9d9d9", text: "未知" };
   return <Tag color={cfg.color}>{cfg.text}</Tag>;
 };
@@ -75,12 +78,18 @@ const renderOverallRiskTag = (level) => {
     R2: { color: "#faad14", text: "中度风险" },
     R3: { color: "#ff4d4f", text: "高风险" }
   };
+
   const cfg = config[level] || { color: "#d9d9d9", text: level || "未知" };
   return <Tag color={cfg.color}>{cfg.text}</Tag>;
 };
 
-const ReportHeader = ({ pageNo, schoolName }) => (
-  <div className={s.reportHeader}>
+const shortName = (name, max = 4) => {
+  if (!name) return "";
+  return name.length > max ? `${name.slice(0, max)}…` : name;
+};
+
+const ReportHeader = ({ pageNo, schoolName, isMobile }) => (
+  <div className={`${s.reportHeader} ${isMobile ? s.reportHeaderMobile : ""}`}>
     <div className={s.reportHeaderLeft}>{schoolName}</div>
     <div className={s.reportHeaderCenter}>{REPORT_TITLE}</div>
     <div className={s.reportHeaderRight}>第 {pageNo} 页</div>
@@ -88,12 +97,13 @@ const ReportHeader = ({ pageNo, schoolName }) => (
 );
 
 const ResultsSection = ({ result, user }) => {
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
+
   const radarRef = useRef(null);
   const reportRef = useRef(null);
-  const exportRef = useRef(null);
+  const chartRef = useRef(null);
   const [exporting, setExporting] = useState(false);
-
-  console.log(user, result);
 
   const domainRisks = useMemo(() => {
     return parseDomainRiskFromTags(result?.tags || result?.tags_json);
@@ -108,27 +118,46 @@ const ResultsSection = ({ result, user }) => {
     });
   }, [result]);
 
+  const domains = result?.domains || result?.domains_json || {};
+  const domainEntries = useMemo(() => Object.entries(domains || {}), [domains]);
+
   useEffect(() => {
-    const domains = result?.domains || result?.domains_json;
-    if (!domains || !radarRef.current) return;
+    if (!radarRef.current || !domainEntries.length) return;
 
     const chart = echarts.init(radarRef.current);
+    chartRef.current = chart;
 
-    const domainNames = Object.keys(domains);
-    const indicators = domainNames.map((name) => ({
-      name,
+    const indicators = domainEntries.map(([name]) => ({
+      name: isMobile ? shortName(name, 4) : name,
       max: 1
     }));
-    const dataValues = domainNames.map((name) => Number(domains[name] || 0));
+
+    const dataValues = domainEntries.map(([, value]) => Number(value || 0));
 
     chart.setOption({
+      animationDuration: 300,
+      tooltip: {
+        trigger: "item",
+        confine: true,
+        backgroundColor: "rgba(50,50,50,0.92)",
+        borderWidth: 0,
+        textStyle: {
+          fontSize: isMobile ? 11 : 12
+        },
+        formatter() {
+          return domainEntries.map(([name, value]) => `${name}：${Number(value || 0).toFixed(2)}`).join("<br/>");
+        }
+      },
       radar: {
+        center: ["50%", isMobile ? "52%" : "54%"],
+        radius: isMobile ? "58%" : "64%",
+        splitNumber: isMobile ? 4 : 5,
         indicator: indicators,
-        radius: "62%",
-        splitNumber: 4,
         axisName: {
           color: "#333",
-          fontSize: 14
+          fontSize: isMobile ? 10 : 14,
+          width: isMobile ? 56 : 90,
+          overflow: "truncate"
         },
         splitArea: {
           areaStyle: {
@@ -158,29 +187,34 @@ const ResultsSection = ({ result, user }) => {
               },
               lineStyle: {
                 color: "#1890ff",
-                width: 2
+                width: isMobile ? 1.5 : 2
               },
               itemStyle: {
                 color: "#1890ff"
-              }
+              },
+              symbol: "circle",
+              symbolSize: isMobile ? 4 : 6
             }
           ]
         }
       ]
     });
 
-    const handleResize = () => chart.resize();
-    window.addEventListener("resize", handleResize);
+    const resizeObserver = new ResizeObserver(() => {
+      chart.resize();
+    });
+
+    resizeObserver.observe(radarRef.current);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
       chart.dispose();
+      chartRef.current = null;
     };
-  }, [result]);
+  }, [domainEntries, isMobile]);
 
   const handleExportPdfClick = async () => {
     if (!reportRef.current || !result) return;
-
     const pages = reportRef.current.querySelectorAll(`.${s.pdfPage}`);
     await handleExportPdf({ reportRef, result, suggestion, user, setExporting, pages });
   };
@@ -188,24 +222,28 @@ const ResultsSection = ({ result, user }) => {
   if (!result) return null;
 
   const displayTime = result.finished_at || result.created_at;
-  const domains = result.domains || result.domains_json || {};
   const domainNames = Object.keys(domains);
   const riskText = RISK_TEXT_MAP[result.risk_level] || "未知";
   const riskClass = RISK_CLASS_MAP[result.risk_level] || "default";
   const riskPercent = Math.round((Number(result.risk_score) || 0) * 100);
 
   return (
-    <div className={s.resultsSection}>
+    <div className={`${s.resultsSection} ${isMobile ? s.mobileResultsSection : ""}`}>
       <div className={s.sectionHeader}>
-        <Button type="primary" onClick={handleExportPdfClick} loading={exporting}>
+        <Button
+          type="primary"
+          onClick={handleExportPdfClick}
+          loading={exporting}
+          block={isMobile}
+          size={isMobile ? "large" : "middle"}
+        >
           导出PDF
         </Button>
       </div>
 
       <div ref={reportRef} className={s.reportContainer}>
-        {/* 封面 */}
         <div className={s.pdfPage}>
-          <div className={s.coverPage}>
+          <div className={`${s.coverPage} ${isMobile ? s.coverPageMobile : ""}`}>
             <div className={s.coverTop}>{user?.school_name || "XX 学校"}</div>
             <div className={s.coverTitle}>{REPORT_TITLE}</div>
             <div className={s.coverSubTitle}>学生心理健康测评结果</div>
@@ -231,13 +269,12 @@ const ResultsSection = ({ result, user }) => {
           </div>
         </div>
 
-        {/* 第2页：测评结果 */}
         <div className={s.pdfPage}>
-          <ReportHeader pageNo={2} schoolName={user?.school_name || "XX 学校"} />
+          <ReportHeader pageNo={2} schoolName={user?.school_name || "XX 学校"} isMobile={isMobile} />
 
           <div className={s.reportBody}>
             <div className={s.baseInfoCard}>
-              <div className={s.baseInfoGrid}>
+              <div className={`${s.baseInfoGrid} ${isMobile ? s.baseInfoGridMobile : ""}`}>
                 <div>
                   <span>学生姓名：</span>
                   {user?.real_name || "-"}
@@ -266,10 +303,21 @@ const ResultsSection = ({ result, user }) => {
               <div className={s.blockTitle}>六维度评估结果</div>
 
               <div className={s.radarCenterSection}>
-                <div ref={radarRef} className={s.reportRadarChart} />
+                <div ref={radarRef} className={s.reportRadarChart} style={{ height: isMobile ? 220 : 320 }} />
               </div>
 
-              <div className={s.domainGrid}>
+              {isMobile && domainEntries.length > 0 && (
+                <div className={s.mobileDomainValueGrid}>
+                  {domainEntries.map(([name, value]) => (
+                    <div key={name} className={s.mobileDomainValueItem}>
+                      <div className={s.mobileDomainValueName}>{name}</div>
+                      <div className={s.mobileDomainValueScore}>{Number(value || 0).toFixed(2)}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className={`${s.domainGrid} ${isMobile ? s.domainGridMobile : ""}`}>
                 {domainNames.map((domain) => {
                   const risk = domainRisks[domain] || "unknown";
                   return (
@@ -281,7 +329,7 @@ const ResultsSection = ({ result, user }) => {
                 })}
               </div>
 
-              <div className={s.scoreBarRow}>
+              <div className={`${s.scoreBarRow} ${isMobile ? s.scoreBarRowMobile : ""}`}>
                 <div className={s.scoreBarLabel}>风险分数</div>
                 <div className={s.scoreBarWrap}>
                   <Progress
@@ -298,17 +346,16 @@ const ResultsSection = ({ result, user }) => {
           </div>
         </div>
 
-        {/* 第3页：分析与建议 */}
         {suggestion && (
           <div className={s.pdfPage}>
-            <ReportHeader pageNo={3} schoolName={user?.school_name || "XX 学校"} />
+            <ReportHeader pageNo={3} schoolName={user?.school_name || "XX 学校"} isMobile={isMobile} />
 
             <div className={s.reportBody}>
               <div className={s.reportBlock}>
                 <div className={s.blockTitle}>分析说明</div>
 
                 <div className={s.summaryCard}>
-                  <div className={s.summaryHeader}>
+                  <div className={`${s.summaryHeader} ${isMobile ? s.summaryHeaderMobile : ""}`}>
                     <span className={s.summaryLevel}>{suggestion.summary_level}</span>
                     {renderOverallRiskTag(suggestion.risk_level)}
                   </div>
@@ -317,7 +364,7 @@ const ResultsSection = ({ result, user }) => {
                   <div className={s.summaryContent}>{suggestion.summary_content}</div>
 
                   {Array.isArray(suggestion.priority_domains) && suggestion.priority_domains.length > 0 && (
-                    <div className={s.priorityRow}>
+                    <div className={`${s.priorityRow} ${isMobile ? s.priorityRowMobile : ""}`}>
                       <span className={s.priorityLabel}>重点关注维度：</span>
                       <div className={s.priorityTags}>
                         {suggestion.priority_domains.map((item) => (
@@ -344,7 +391,7 @@ const ResultsSection = ({ result, user }) => {
               <div className={s.reportBlock}>
                 <div className={s.blockTitle}>建议措施</div>
 
-                <div className={s.adviceGrid}>
+                <div className={`${s.adviceGrid} ${isMobile ? s.adviceGridMobile : ""}`}>
                   <div className={s.adviceBlock}>
                     <div className={s.adviceTitle}>给学生的建议</div>
                     <ul className={s.adviceList}>
@@ -378,7 +425,7 @@ const ResultsSection = ({ result, user }) => {
                 <div className={s.blockTitle}>后续跟进</div>
 
                 <div className={s.followupCard}>
-                  <div className={s.followupRow}>
+                  <div className={`${s.followupRow} ${isMobile ? s.followupRowMobile : ""}`}>
                     <span className={s.followupLabel}>建议动作</span>
                     <div className={s.followupTags}>
                       {(suggestion.actions || []).map((item, index) => (
@@ -389,13 +436,13 @@ const ResultsSection = ({ result, user }) => {
                     </div>
                   </div>
 
-                  <div className={s.followupRow}>
+                  <div className={`${s.followupRow} ${isMobile ? s.followupRowMobile : ""}`}>
                     <span className={s.followupLabel}>建议复评周期</span>
                     <span className={s.followupValue}>{suggestion.followup_days} 天内</span>
                   </div>
 
                   {Array.isArray(suggestion.matched_rules) && suggestion.matched_rules.length > 0 && (
-                    <div className={s.followupRow}>
+                    <div className={`${s.followupRow} ${isMobile ? s.followupRowMobile : ""}`}>
                       <span className={s.followupLabel}>命中规则</span>
                       <div className={s.followupTags}>
                         {suggestion.matched_rules.map((item) => (

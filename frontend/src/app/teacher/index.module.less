@@ -1,429 +1,554 @@
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
 .teacher {
-  padding: 20px;
+  width: 100%;
   max-width: 1400px;
   margin: 0 auto;
+  padding: 16px;
   box-sizing: border-box;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
 
-  .loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 400px;
-  }
+.filters {
+  margin-bottom: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 
-  & > .filters {
-    margin-bottom: 16px;
-
-    :global {
-      .ant-card-body {
-        padding: 16px;
-
-        display: flex;
-      }
+  :global {
+    .ant-card-body {
+      padding: 16px;
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
     }
   }
+}
 
-  .filterBar {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
+.filterBar {
+  flex: 1;
+  min-width: 0;
+}
 
-  .filterLabel {
-    color: #333;
-    font-size: 14px;
-    white-space: nowrap;
-  }
+.filterHeader {
+  margin-bottom: 8px;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.4;
+}
 
-  .filterSelect {
-    width: 140px;
-  }
+.filterControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
 
-  .overview {
-    margin-bottom: 16px;
+.filterSelect {
+  width: 160px;
+  min-width: 140px;
+}
 
-    :global {
-      .ant-card-body {
-        padding: 16px;
-      }
+.overview {
+  margin-bottom: 16px;
+
+  :global {
+    .ant-card-body {
+      padding: 16px;
     }
+  }
+}
 
-    .overviewLeft,
-    .overviewCenter,
-    .overviewRight {
-      height: 100%;
-      min-height: 300px;
-      padding: 8px;
-      background: #fff;
-      border-radius: 8px;
-      box-sizing: border-box;
-    }
+.overviewLeft,
+.overviewCenter,
+.overviewRight {
+  height: 100%;
+  min-height: 280px;
+  padding: 16px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+}
 
-    .overviewTitle {
-      margin-bottom: 16px;
-      font-size: 16px;
+.overviewLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f7f9fc, #ffffff);
+}
+
+.overviewCenter,
+.overviewRight {
+  display: flex;
+  flex-direction: column;
+}
+
+.overviewTitle {
+  margin-bottom: 16px;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.completeCircle {
+  margin-bottom: 20px;
+
+  :global {
+    .ant-progress-text {
+      font-size: 20px;
       font-weight: 600;
-      color: #333;
-      line-height: 24px;
+    }
+  }
+}
+
+.completeStats {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+
+.statItem {
+  min-width: 72px;
+  text-align: center;
+}
+
+.statValue {
+  color: #1890ff;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1;
+  word-break: break-word;
+}
+
+.statLabel {
+  margin-top: 6px;
+  color: #888;
+  font-size: 13px;
+}
+
+.statDivider {
+  width: 1px;
+  height: 36px;
+  background: #e8e8e8;
+  flex: 0 0 auto;
+}
+
+.riskItem {
+  min-height: 92px;
+  padding: 16px 12px;
+  text-align: center;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #d9d9d9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+}
+
+.riskCount {
+  margin-top: 10px;
+  color: #333;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.radarWrap {
+  width: 100%;
+  height: 260px;
+
+  :global {
+    canvas {
+      outline: none;
+    }
+  }
+}
+
+.gradeStats,
+.classStats,
+.students {
+  margin-bottom: 16px;
+
+  :global {
+    .ant-card-body {
+      padding: 12px 16px;
+    }
+  }
+}
+
+.students {
+  margin-bottom: 0;
+
+  :global {
+    .ant-table-wrapper {
+      font-size: 14px;
+    }
+  }
+}
+
+.chartScrollWrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chartWrapGrade {
+  width: 100%;
+  min-height: 220px;
+}
+
+.chartWrapClass {
+  width: 100%;
+  min-height: 260px;
+}
+
+.mobileStudentList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.studentCard {
+  padding: 12px;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.studentCardClickable {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    transform: scale(0.98);
+    background: #fafafa;
+  }
+}
+
+.studentCardActive {
+  border-color: #91d5ff;
+  background: #f0f9ff;
+}
+
+.studentCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.studentName {
+  color: #222;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.studentMeta {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  color: #666;
+  font-size: 13px;
+}
+
+.studentCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.studentField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #333;
+  font-size: 13px;
+}
+
+.label {
+  color: #888;
+  flex-shrink: 0;
+}
+
+.mobilePagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.mobilePaginationText {
+  color: #666;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.resultLoading {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resultDrawer {
+  :global {
+    .ant-drawer-content {
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      overflow: hidden;
     }
 
-    .overviewLeft {
-      height: 100%;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #f7f9fc, #ffffff);
-      border: 1px solid #f0f0f0;
-      padding: 20px 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+    .ant-drawer-header {
+      padding: 12px 16px;
     }
 
-    .completeCircle {
-      margin-bottom: 20px;
-
-      :global {
-        .ant-progress-text {
-          font-size: 20px;
-          font-weight: 600;
-        }
-      }
+    .ant-drawer-body {
+      padding: 12px;
+      overscroll-behavior: contain;
     }
+  }
+}
 
-    .completeStats {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 28px;
-      width: 100%;
-    }
+.touchFriendly {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
 
-    .statItem {
-      text-align: center;
-      min-width: 72px;
-    }
+@media (max-width: 992px) {
+  .teacher {
+    padding: 14px;
+  }
 
-    .statValue {
-      font-size: 28px;
-      font-weight: 600;
-      color: #1890ff;
-      line-height: 1;
-      word-break: break-word;
-    }
-
-    .statLabel {
-      margin-top: 6px;
-      font-size: 13px;
-      color: #888;
-    }
-
-    .statDivider {
-      width: 1px;
-      height: 36px;
-      background: #e8e8e8;
-      flex: 0 0 auto;
-    }
-
-    .overviewCenter {
-      .riskItem {
-        min-height: 92px;
-        padding: 16px 12px;
-        text-align: center;
-        background: #fafafa;
-        border: 1px solid #f0f0f0;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-        box-sizing: border-box;
-
-        &:hover {
-          border-color: #d9d9d9;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        }
-
-        .riskCount {
-          margin-top: 10px;
-          font-size: 24px;
-          font-weight: bold;
-          color: #333;
-          line-height: 1.2;
-        }
-      }
-    }
-
-    .overviewRight {
-      display: flex;
-      flex-direction: column;
-
-      :global {
-        canvas {
-          outline: none;
-        }
-      }
-    }
+  .overviewLeft,
+  .overviewCenter,
+  .overviewRight {
+    min-height: auto;
   }
 
   .radarWrap {
+    height: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .teacher {
+    padding: 12px;
+  }
+
+  .filters {
+    :global {
+      .ant-card-body {
+        padding: 12px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  }
+
+  .filterControls {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filterSelect {
     width: 100%;
-    height: 260px;
+    min-width: 0;
   }
 
-  .gradeStats {
+  .overview {
+    :global {
+      .ant-card-body {
+        padding: 12px;
+      }
+    }
+  }
+
+  .overviewLeft,
+  .overviewCenter,
+  .overviewRight {
+    padding: 12px;
+  }
+
+  .overviewTitle {
+    margin-bottom: 14px;
+    font-size: 15px;
+  }
+
+  .completeCircle {
     margin-bottom: 16px;
 
     :global {
-      .ant-card-body {
-        padding: 12px 16px;
+      .ant-progress-text {
+        font-size: 18px;
       }
     }
   }
 
-  .classStats {
-    margin-bottom: 16px;
-
-    :global {
-      .ant-card-body {
-        padding: 12px 16px;
-      }
-    }
+  .completeStats {
+    gap: 18px;
   }
 
-  .students {
-    :global {
-      .ant-card-body {
-        padding: 16px;
-      }
+  .statValue {
+    font-size: 24px;
+  }
 
-      .ant-table-wrapper {
-        font-size: 14px;
-      }
-    }
+  .statLabel {
+    font-size: 12px;
+  }
+
+  .statDivider {
+    height: 30px;
+  }
+
+  .riskItem {
+    min-height: 80px;
+    padding: 14px 10px;
+  }
+
+  .riskCount {
+    margin-top: 8px;
+    font-size: 20px;
   }
 
   .chartWrapGrade {
-    width: 100%;
-    min-height: 180px;
-  }
-
-  .chartWrapClass {
-    width: 100%;
     min-height: 240px;
   }
 
-  @media (max-width: 992px) {
-    padding: 16px;
-
-    .overview {
-      .overviewLeft,
-      .overviewCenter,
-      .overviewRight {
-        min-height: auto;
-      }
-    }
-
-    .radarWrap {
-      height: 240px;
-    }
+  .chartWrapClass {
+    min-height: 300px;
   }
 
-  @media (max-width: 768px) {
-    padding: 12px;
+  .radarWrap {
+    min-height: 260px;
+  }
 
-    .filters {
-      :global {
-        .ant-card-body {
-          padding: 12px;
-        }
-      }
-    }
-
-    .filterBar {
-      align-items: stretch;
-      gap: 10px;
-    }
-
-    .filterLabel {
-      width: 100%;
-      margin-bottom: 2px;
-    }
-
-    .filterSelect {
-      width: 100%;
-    }
-
-    .overview {
-      :global {
-        .ant-card-body {
-          padding: 12px;
-        }
-      }
-
-      .overviewLeft,
-      .overviewCenter,
-      .overviewRight {
+  .gradeStats,
+  .classStats,
+  .students {
+    :global {
+      .ant-card-head {
         min-height: auto;
-        padding: 12px;
+        padding: 0 12px;
       }
 
-      .overviewTitle {
-        margin-bottom: 14px;
+      .ant-card-head-title {
+        padding: 12px 0;
         font-size: 15px;
       }
 
-      .overviewLeft {
-        padding: 16px 12px;
-      }
-
-      .completeCircle {
-        margin-bottom: 16px;
-
-        :global {
-          .ant-progress-circle {
-            width: 100px !important;
-            height: 100px !important;
-          }
-
-          .ant-progress-text {
-            font-size: 18px;
-          }
-        }
-      }
-
-      .completeStats {
-        gap: 18px;
-      }
-
-      .statValue {
-        font-size: 24px;
-      }
-
-      .statLabel {
-        font-size: 12px;
-      }
-
-      .statDivider {
-        height: 30px;
-      }
-
-      .overviewCenter {
-        .riskItem {
-          min-height: 80px;
-          padding: 14px 10px;
-
-          .riskCount {
-            font-size: 20px;
-            margin-top: 8px;
-          }
-        }
+      .ant-card-body {
+        padding: 12px;
       }
     }
+  }
+}
 
-    .radarWrap {
-      height: 220px;
-    }
+@media (max-width: 480px) {
+  .teacher {
+    padding: 8px;
+  }
 
-    .gradeStats,
-    .classStats,
-    .students {
-      :global {
-        .ant-card-head {
-          min-height: auto;
-          padding: 0 12px;
-        }
+  .filters {
+    margin-bottom: 12px;
 
-        .ant-card-head-title {
-          padding: 12px 0;
-          font-size: 15px;
-        }
-
-        .ant-card-body {
-          padding: 12px;
-        }
+    :global {
+      .ant-card-body {
+        padding: 10px;
       }
-    }
 
-    .chartWrapGrade {
-      min-height: 200px;
-    }
-
-    .chartWrapClass {
-      min-height: 240px;
-    }
-
-    .students {
-      :global {
-        .ant-table-wrapper {
-          font-size: 13px;
-        }
+      .ant-btn {
+        width: 100%;
       }
     }
   }
 
-  @media (max-width: 576px) {
+  .filterHeader {
+    font-size: 12px;
+  }
+
+  .overviewTitle {
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  .overviewLeft,
+  .overviewCenter,
+  .overviewRight {
     padding: 10px;
+  }
 
-    .overview {
-      .overviewTitle {
-        font-size: 14px;
-        margin-bottom: 12px;
-      }
+  .completeStats {
+    flex-direction: column;
+    gap: 14px;
+  }
 
-      .overviewLeft {
-        padding: 14px 10px;
-      }
+  .statItem {
+    min-width: 60px;
+  }
 
-      .completeCircle {
-        :global {
-          .ant-progress-circle {
-            width: 92px !important;
-            height: 92px !important;
-          }
+  .statValue {
+    font-size: 20px;
+  }
 
-          .ant-progress-text {
-            font-size: 16px;
-          }
-        }
-      }
+  .statLabel {
+    font-size: 12px;
+  }
 
-      .completeStats {
-        gap: 14px;
-      }
+  .statDivider {
+    width: 100%;
+    height: 1px;
+    margin: 4px 0;
+  }
 
-      .statItem {
-        min-width: 60px;
-      }
+  .riskItem {
+    min-height: 72px;
+    padding: 12px 8px;
+  }
 
-      .statValue {
-        font-size: 20px;
-      }
+  .riskCount {
+    font-size: 18px;
+  }
 
-      .statLabel {
-        font-size: 12px;
-      }
+  .radarWrap {
+    height: 200px;
+  }
 
-      .overviewCenter {
-        .riskItem {
-          min-height: 72px;
-          padding: 12px 8px;
+  .studentCard {
+    padding: 10px;
+    border-radius: 10px;
+  }
 
-          .riskCount {
-            font-size: 18px;
-          }
-        }
-      }
-    }
+  .studentName {
+    font-size: 15px;
+  }
 
-    .radarWrap {
-      height: 200px;
-    }
+  .studentMeta,
+  .studentField,
+  .mobilePaginationText {
+    font-size: 12px;
+  }
 
-    .chartWrapGrade {
-      min-height: 180px;
-    }
-
-    .chartWrapClass {
-      min-height: 220px;
-    }
+  .mobilePagination {
+    gap: 8px;
   }
 }

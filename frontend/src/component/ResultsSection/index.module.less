@@ -363,7 +363,7 @@
 
 .resultsSection {
   padding: 24px;
-  background: #f5f7fa;
+  // background: #f5f7fa;
   min-height: 100%;
   box-sizing: border-box;
 }
@@ -1073,4 +1073,457 @@
 .followupValue,
 .priorityLabel {
   min-width: 0;
+}
+
+// 补充移动适配
+
+.resultsSection {
+  width: 100%;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.mobileResultsSection {
+  .sectionHeader {
+    position: sticky;
+    top: 0;
+    z-index: 8;
+    background: #fff;
+    padding-bottom: 10px;
+  }
+}
+
+.reportContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pdfPage {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+
+.reportHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #666;
+}
+
+.reportHeaderCenter {
+  font-weight: 600;
+  color: #333;
+}
+
+.reportBody {
+  padding: 20px;
+}
+
+.baseInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 24px;
+}
+
+.bigRiskSection {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: 12px;
+  background: #fafafa;
+  text-align: center;
+}
+
+.bigRiskLabel {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.bigRiskValue {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.reportBlock {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  background: #fff;
+}
+
+.blockTitle {
+  margin-bottom: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.radarCenterSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.reportRadarChart {
+  width: 100%;
+  max-width: 520px;
+}
+
+.mobileDomainValueGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.mobileDomainValueItem {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+}
+
+.mobileDomainValueName {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.mobileDomainValueScore {
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: #1890ff;
+}
+
+.domainGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.domainGridItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+}
+
+.domainGridName {
+  color: #333;
+  font-size: 14px;
+}
+
+.scoreBarRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.scoreBarLabel {
+  flex-shrink: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.scoreBarWrap {
+  flex: 1;
+}
+
+.summaryHeader,
+.priorityRow,
+.followupRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.summaryTitle {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.summaryContent {
+  margin-top: 10px;
+  color: #555;
+  line-height: 1.8;
+}
+
+.adviceGrid {
+  display: grid;
+  // grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.adviceBlock {
+  padding: 14px;
+  border-radius: 10px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+}
+
+.adviceTitle {
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.adviceList {
+  margin: 0;
+  padding-left: 18px;
+  color: #555;
+  line-height: 1.8;
+}
+
+.followupCard {
+  padding: 14px;
+  border-radius: 10px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+}
+
+.followupLabel,
+.priorityLabel {
+  flex-shrink: 0;
+  color: #666;
+}
+
+.priorityTags,
+.followupTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.coverPage {
+  min-height: 520px;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.coverTop {
+  font-size: 18px;
+  color: #666;
+}
+
+.coverTitle {
+  margin-top: 24px;
+  font-size: 32px;
+  font-weight: 700;
+  color: #222;
+}
+
+.coverSubTitle {
+  margin-top: 10px;
+  font-size: 18px;
+  color: #666;
+}
+
+.coverInfoCard {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 28px;
+  padding: 18px;
+  border-radius: 12px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+}
+
+.coverInfoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.coverRiskBadge {
+  margin-top: 20px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.coverFooter {
+  margin-top: 28px;
+  color: #999;
+  font-size: 13px;
+  text-align: center;
+}
+
+.low {
+  color: #52c41a;
+}
+
+.notice {
+  color: #1890ff;
+}
+
+.medium {
+  color: #faad14;
+}
+
+.high {
+  color: #ff4d4f;
+}
+
+@media (max-width: 768px) {
+  .reportHeaderMobile {
+    padding: 12px;
+    font-size: 12px;
+  }
+
+  .reportHeaderLeft,
+  .reportHeaderRight {
+    font-size: 12px;
+  }
+
+  .reportHeaderCenter {
+    font-size: 13px;
+  }
+
+  .reportBody {
+    padding: 12px;
+  }
+
+  .baseInfoGridMobile {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .reportBlock {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .blockTitle {
+    margin-bottom: 12px;
+    font-size: 15px;
+  }
+
+  .bigRiskSection {
+    margin-top: 12px;
+    padding: 14px 12px;
+  }
+
+  .bigRiskValue {
+    font-size: 22px;
+  }
+
+  .domainGridMobile {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .domainGridItem {
+    padding: 8px 10px;
+  }
+
+  .domainGridName {
+    font-size: 13px;
+  }
+
+  .scoreBarRowMobile {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .summaryHeaderMobile,
+  .priorityRowMobile,
+  .followupRowMobile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .adviceGridMobile {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .adviceBlock {
+    padding: 12px;
+  }
+
+  .adviceTitle {
+    font-size: 14px;
+  }
+
+  .summaryTitle {
+    font-size: 16px;
+  }
+
+  .summaryContent,
+  .adviceList {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .coverPageMobile {
+    min-height: auto;
+    padding: 28px 16px;
+  }
+
+  .coverTop {
+    font-size: 16px;
+  }
+
+  .coverTitle {
+    margin-top: 18px;
+    font-size: 24px;
+  }
+
+  .coverSubTitle {
+    margin-top: 8px;
+    font-size: 15px;
+  }
+
+  .coverInfoCard {
+    margin-top: 20px;
+    padding: 14px;
+  }
+
+  .coverInfoRow {
+    font-size: 13px;
+    padding: 7px 0;
+  }
+
+  .coverRiskBadge {
+    margin-top: 16px;
+    font-size: 14px;
+    padding: 7px 14px;
+  }
+
+  .coverFooter {
+    margin-top: 20px;
+    font-size: 12px;
+  }
 }
