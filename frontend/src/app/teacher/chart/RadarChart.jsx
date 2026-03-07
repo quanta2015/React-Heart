@@ -53,6 +53,7 @@ const RadarChart = ({ domainAvg = {} }) => {
         backgroundColor: "rgba(50,50,50,0.92)",
         borderWidth: 0,
         textStyle: {
+          color: "#fff",
           fontSize: isMobile ? 11 : 12
         },
         formatter() {
