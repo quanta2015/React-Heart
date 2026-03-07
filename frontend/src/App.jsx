@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState, useEffect } from "react";
+import { Suspense, lazy, useState, useEffect, useCallback } from "react";
 import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Spin } from "antd";
 import token from "@/util/token";
@@ -27,12 +27,26 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checked, setChecked] = useState(false);
 
-  useEffect(() => {
+  // 检查登录状态的函数
+  const checkAuth = useCallback(() => {
     const user = token.loadUser();
     const tok = token.get();
-    setIsAuthenticated(!!(user && tok));
-    setChecked(true);
+    return !!(user && tok);
   }, []);
+
+  useEffect(() => {
+    setIsAuthenticated(checkAuth());
+    setChecked(true);
+  }, [checkAuth]);
+
+  // 监听 auth-change 自定义事件（处理登录/登出）
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setIsAuthenticated(checkAuth());
+    };
+    window.addEventListener("auth-change", handleAuthChange);
+    return () => window.removeEventListener("auth-change", handleAuthChange);
+  }, [checkAuth]);
 
   if (!checked) {
     return <Loading />;

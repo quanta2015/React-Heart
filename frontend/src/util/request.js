@@ -188,27 +188,36 @@ service.interceptors.response.use(
   (error) => {
     // 获取请求配置中的静默错误选项
     const silentErrors = error.config?.silentErrors || [];
+    // 获取是否跳过全局错误处理
+    const skipGlobalError = error.config?.skipGlobalError || false;
 
     // 处理网络错误
     if (error.response) {
       const { status } = error.response;
 
-      // 将静默错误列表传递给 handleNetworkError
-      handleNetworkError(status, silentErrors);
+      // 如果跳过全局错误处理，只显示错误信息，不触发其他操作
+      if (skipGlobalError) {
+        // 不做任何处理，让调用方自己处理错误
+      } else {
+        // 将静默错误列表传递给 handleNetworkError
+        handleNetworkError(status, silentErrors);
 
-      // 处理认证错误（401 和 403 始终显示）
-      if (status === 401 || status === 403) {
-        handleAuthError(status);
-      }
+        // 处理认证错误（401 和 403 始终显示）
+        if (status === 401 || status === 403) {
+          handleAuthError(status);
+        }
 
-      // 处理通用错误
-      const { data } = error.response;
-      if (data && data.errno && !silentErrors.includes(data.errno)) {
-        handleGeneralError(data.errno, data.errmsg);
+        // 处理通用错误
+        const { data } = error.response;
+        if (data && data.errno && !silentErrors.includes(data.errno)) {
+          handleGeneralError(data.errno, data.errmsg);
+        }
       }
     } else {
       // 网络异常始终显示
-      handleNetworkError(null, silentErrors);
+      if (!skipGlobalError) {
+        handleNetworkError(null, silentErrors);
+      }
     }
 
     return Promise.reject(error);

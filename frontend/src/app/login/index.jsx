@@ -28,7 +28,8 @@ const Login = () => {
 
       setLoading(true);
       try {
-        const res = await post(urls.API_LOGIN, { username, password });
+        // 使用 axios 直接发送请求，避免全局拦截器处理登录错误
+        const res = await post(urls.API_LOGIN, { username, password }, { skipGlobalError: true });
 
         // 后端响应格式：{ code: 200, data: { token, user } }
         if (res.code === 200 && res.data) {
@@ -52,6 +53,9 @@ const Login = () => {
 
           message.success("登录成功");
 
+          // 触发自定义事件，通知 App 组件更新认证状态
+          window.dispatchEvent(new CustomEvent("auth-change", { detail: { isAuthenticated: true } }));
+
           // 所有角色都跳转到首页，由首页根据角色和状态显示不同内容
           navigate("/");
         } else {
@@ -59,7 +63,9 @@ const Login = () => {
         }
       } catch (err) {
         console.error("登录错误:", err);
-        message.error(err.response?.data?.message || "网络错误，请稍后重试");
+        // 优先显示后端返回的错误信息
+        const errorMessage = err.response?.data?.message || "网络错误，请稍后重试";
+        message.error(errorMessage);
       } finally {
         setLoading(false);
       }
