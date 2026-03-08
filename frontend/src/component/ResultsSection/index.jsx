@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Progress, Tag, Alert, Button, Grid } from "antd";
 import * as echarts from "echarts";
 import s from "./index.module.less";
-import { generatePsychSuggestion } from "@/util/suggestionEngine";
+import { generatePsychSuggestion } from "@/util/suggEngineStudent";
 import { handleExportPdf } from "./exportPdf";
 
 const { useBreakpoint } = Grid;

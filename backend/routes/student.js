@@ -37,7 +37,7 @@ router.get("/test/generate", requireAuth, requireRole("student"), async (req, re
         const [items] = await conn.query(
           `
           SELECT i.id, i.type, i.question, i.domain, i.facet, i.reverse_scored,
-                 COALESCE(i.options_json, so.options_json) AS options_json
+                 so.options_json AS options_json
           FROM psych_answers a
           JOIN psych_items i ON i.id = a.item_id
           LEFT JOIN scale_options so ON so.type = i.type
@@ -128,7 +128,7 @@ router.get("/test/generate", requireAuth, requireRole("student"), async (req, re
     const [items] = await conn.query(
       `
       SELECT i.id, i.type, i.question, i.domain, i.facet, i.reverse_scored,
-             COALESCE(i.options_json, so.options_json) AS options_json
+             so.options_json AS options_json
       FROM psych_answers a
       JOIN psych_items i ON i.id = a.item_id
       LEFT JOIN scale_options so ON so.type = i.type
@@ -176,7 +176,7 @@ router.get("/test/current", requireAuth, requireRole("student"), async (req, res
     const [items] = await conn.query(
       `
       SELECT i.id, i.type, i.question, i.domain, i.facet, i.reverse_scored,
-             COALESCE(i.options_json, so.options_json) AS options_json
+             so.options_json AS options_json
       FROM psych_answers a
       JOIN psych_items i ON i.id = a.item_id
       LEFT JOIN scale_options so ON so.type = i.type

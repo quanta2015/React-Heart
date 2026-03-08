@@ -1,4 +1,4 @@
-import templateLib from "@/constant/sugg.json";
+import templateLib from "@/constant/sugg-student.json";
 
 /**
  * 传入测评结果 data，返回建议结果

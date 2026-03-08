@@ -10,6 +10,8 @@ const Assessment = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const hasSubmittedRef = useRef(false);
+  const currentUser = token.loadUser();
+  const isParent = currentUser?.role === "parent";
 
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -18,6 +20,15 @@ const Assessment = () => {
   const [answers, setAnswers] = useState({});
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [progress, setProgress] = useState(0);
+
+  const getDefaultRangeByType = (type) => {
+    const t = String(type || "").toUpperCase();
+    if (t === "PHQ9" || t === "GAD7") return { min: 0, max: 3 };
+    if (t === "PSS" || t === "EXT5" || t === "PARENT") return { min: 0, max: 4 };
+    if (t === "RSES" || t === "UCLA") return { min: 1, max: 4 };
+    if (t === "IAT") return { min: 1, max: 5 };
+    return { min: 0, max: 4 };
+  };
 
   // 从路由 state 获取测试数据
   useEffect(() => {
@@ -93,7 +104,8 @@ const Assessment = () => {
         }))
       };
 
-      const res = await post(urls.API_STUDENT_TEST_SUBMIT, submitData);
+      const submitApi = isParent ? urls.API_PARENT_TEST_SUBMIT : urls.API_STUDENT_TEST_SUBMIT;
+      const res = await post(submitApi, submitData);
 
       if (res.code === 200) {
         message.success("测试提交成功！");
@@ -126,6 +138,9 @@ const Assessment = () => {
       if (validValues.length > 0) {
         const idx = Math.floor(Math.random() * validValues.length);
         randomAnswers[item.id] = validValues[idx];
+      } else {
+        const { min, max } = getDefaultRangeByType(item.type);
+        randomAnswers[item.id] = Math.floor(Math.random() * (max - min + 1)) + min;
       }
     });
     setAnswers(randomAnswers);
@@ -149,7 +164,7 @@ const Assessment = () => {
   return (
     <div className={s.assessment}>
       <Card
-        title={`心理测评 - 第 ${currentQuestion + 1} / ${items.length} 题`}
+        title={`${isParent ? "家长心理测评" : "心理测评"} - 第 ${currentQuestion + 1} / ${items.length} 题`}
         extra={<span style={{ fontSize: "14px", color: "#666" }}>进度：{progress}%</span>}
       >
         {/* 进度条 */}

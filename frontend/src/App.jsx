@@ -87,6 +87,18 @@ function App() {
             }
           />
           <Route
+            path="/parent/assessment"
+            element={
+              isAuthenticated ? (
+                <Layout>
+                  <Assessment />
+                </Layout>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
             path="/teacher"
             element={
               isAuthenticated ? (

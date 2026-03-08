@@ -23,7 +23,7 @@ import GradeStackBar from "./chart/GradeStackBar";
 import ClassStackBar from "./chart/ClassStackBar";
 import RadarChart from "./chart/RadarChart";
 import ResultsSection from "@/component/ResultsSection";
-import { generatePsychSuggestion } from "@/util/suggestionEngine";
+import { generatePsychSuggestion } from "@/util/suggEngineStudent";
 import { exportTeacherStatisticReport } from "@/util/teacherReportPdf";
 
 const { useBreakpoint } = Grid;

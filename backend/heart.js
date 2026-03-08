@@ -7,6 +7,7 @@ const path = require("path");
 const authRoutes = require("./routes/auth");
 const studentRoutes = require("./routes/student");
 const teacherRoutes = require("./routes/teacher");
+const parentRoutes = require("./routes/parent");
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api/auth", authRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/teacher", teacherRoutes);
+app.use("/api/parent", parentRoutes);
 
 // 兼容旧版登录接口
 app.post("/api/login", (req, res, next) => {

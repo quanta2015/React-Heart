@@ -70,7 +70,15 @@ const Nav = () => {
 
             {!isMobile && (
               <span className={s.role}>
-                ({user.role === "student" ? "学生" : user.role === "teacher" ? "教师" : "教育局"})
+                (
+                {user.role === "student"
+                  ? "学生"
+                  : user.role === "teacher"
+                    ? "教师"
+                    : user.role === "parent"
+                      ? "家长"
+                      : "教育局"}
+                )
               </span>
             )}
             <Button type="primary" danger size="small" onClick={handleLogout}>

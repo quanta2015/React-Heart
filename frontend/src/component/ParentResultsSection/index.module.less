@@ -1,0 +1,159 @@
+.wrap {
+  margin: 16px;
+  display: grid;
+  gap: 16px;
+}
+
+.metricCard {
+  background: #fff;
+  border: 1px solid #d8e7ee;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.metricTitle {
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.metricValue {
+  color: #1e293b;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.metricLevel {
+  margin-top: 4px;
+  color: #0f766e;
+  font-size: 12px;
+}
+
+.listCard {
+  background: #fff;
+  border: 1px solid #d8e7ee;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.listTitle {
+  color: #1e293b;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.threeColLayout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.panel {
+  border: 1px solid #dbe7f3;
+  border-radius: 10px;
+  background: #fbfdff;
+  padding: 10px;
+}
+
+.overallBlock {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.overallBlock:last-child {
+  margin-bottom: 0;
+}
+
+.overallTitle {
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.coreProgress {
+  width: 100%;
+}
+
+.metricsCol {
+  display: grid;
+  gap: 10px;
+}
+
+.scoreTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.scoreTable th,
+.scoreTable td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 8px 6px;
+  text-align: left;
+  font-size: 13px;
+}
+
+.scoreTable th {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.scoreTable tr:last-child td {
+  border-bottom: none;
+}
+
+.radarChart {
+  width: 100%;
+  height: 360px;
+}
+
+.coreRadarChart {
+  width: 100%;
+  height: 240px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.warn {
+  margin-top: 8px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  background: #eef6ff;
+  color: #0b5cad;
+  border: 1px solid #c7def5;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .threeColLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .radarChart {
+    height: 280px;
+  }
+
+  .coreRadarChart {
+    height: 220px;
+  }
+}

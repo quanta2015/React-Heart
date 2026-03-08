@@ -11,6 +11,12 @@ export const API_STUDENT_TEST_CURRENT = API_SERVER + "/api/student/test/current"
 export const API_STUDENT_TEST_SUBMIT = API_SERVER + "/api/student/test/submit";
 export const API_STUDENT_RESULT = API_SERVER + "/api/student/result";
 
+// 家长端 API
+export const API_PARENT_TEST_GENERATE = API_SERVER + "/api/parent/test/generate";
+export const API_PARENT_TEST_CURRENT = API_SERVER + "/api/parent/test/current";
+export const API_PARENT_TEST_SUBMIT = API_SERVER + "/api/parent/test/submit";
+export const API_PARENT_RESULT = API_SERVER + "/api/parent/result";
+
 // 教师端 API
 export const API_TEACHER_STATS_OVERVIEW = API_SERVER + "/api/teacher/stats/overview";
 export const API_TEACHER_STATS_BY_GRADE = API_SERVER + "/api/teacher/stats/by-grade";
