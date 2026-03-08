@@ -250,7 +250,7 @@ router.post("/test/submit", requireAuth, requireRole("student"), async (req, res
 
       // 获取题目信息
       const [items] = await conn.query(
-        `SELECT i.reverse_scored, i.type, so.max_score
+        `SELECT i.reverse_scored, i.type, so.min_score, so.max_score
          FROM psych_items i
          LEFT JOIN scale_options so ON so.type = i.type
          WHERE i.id = ?`,
@@ -260,27 +260,18 @@ router.post("/test/submit", requireAuth, requireRole("student"), async (req, res
       if (items.length === 0) continue;
 
       const item = items[0];
-      const maxScore = item.max_score || 5;
+      const minScore = Number(item.min_score ?? 0);
+      const maxScore = Number(item.max_score ?? 4);
+      const rawAnswer = Number(answer);
 
-      // 确保 answer 在有效范围内 (1 到 maxScore)
-      const validAnswer = Math.max(1, Math.min(answer, maxScore));
+      // 非法答案直接跳过，避免写入脏数据
+      if (!Number.isFinite(rawAnswer)) continue;
 
-      // 计算分数：反向计分题目用 (maxScore + 1 - answer)，正向计分用 answer
-      // 注意：如果量表是 0-based (如 PHQ9: 0-3)，需要调整
-      let score;
-      if (item.reverse_scored) {
-        score = maxScore + 1 - validAnswer;
-      } else {
-        // 对于 0-based 量表 (PHQ9, GAD7 等)，answer 1-4 对应 0-3
-        if (["PHQ9", "GAD7"].includes(item.type)) {
-          score = validAnswer - 1;
-        } else {
-          score = validAnswer;
-        }
-      }
+      // 按量表真实区间做边界保护，兼容 0-based / 1-based
+      const validAnswer = Math.max(minScore, Math.min(rawAnswer, maxScore));
 
-      // 确保 score 非负
-      score = Math.max(0, score);
+      // 通用计分公式：正向 raw；反向 min + max - raw
+      const score = item.reverse_scored ? minScore + maxScore - validAnswer : validAnswer;
 
       await conn.query(
         "INSERT INTO psych_answers (test_id, item_id, answer, score) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE answer=?, score=?",

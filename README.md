@@ -1,677 +1,589 @@
-下面是一份 **完整合并版《学校心理测评系统项目设计文档》**，把你前面两次讨论的内容统一整理为一份 **可直接用于项目立项 / 技术设计 / 开发说明的文档**。
-技术栈：**React + Node.js + MySQL + ECharts**
+# 心理健康测评系统 - 项目设计文档
+
+## 1. 项目概述
+
+### 1.1 项目名称
+心理健康测评系统 (Heart Health Assessment System)
+
+### 1.2 项目简介
+本项目是一个面向学校的学生心理健康测评系统，支持学生在线完成心理测评问卷，系统自动计算风险等级并生成评估报告。教师端提供班级/年级维度的统计分析功能，帮助学校及时发现和关注需要心理支持的学生。
+
+### 1.3 技术栈
+
+| 层级 | 技术选型 |
+|------|----------|
+| 前端框架 | React 18 + Vite |
+| UI 组件库 | Ant Design 5.x |
+| 状态管理 | Jotai |
+| 路由 | React Router DOM 7.x |
+| 图表 | ECharts 6.x |
+| HTTP 客户端 | Axios |
+| 样式 | Less + CSS Modules |
+| 后端框架 | Node.js + Express 5.x |
+| 数据库 | MySQL 8.x (mysql2) |
+| 认证 | JWT (jsonwebtoken) |
+| 文件上传 | Multer |
 
 ---
 
-# 一、项目概述
+## 2. 系统架构
 
-## 1.1 项目背景
-
-为学校学生开展心理健康测评，通过心理量表与扩展题库综合评估学生心理状态。系统支持：
-
-- 学生心理测评
-- 学校教师统计分析
-- 教育局宏观监管
-
-系统输出心理风险等级（R0-R3）及六大心理维度分析。
-
----
-
-# 二、系统角色设计
-
-系统共有 **三类用户**
-
-| 角色   | 功能                           |
-| ------ | ------------------------------ |
-| 学生   | 进行心理测评、查看结果         |
-| 老师   | 查看学校统计、查看学生心理报告 |
-| 教育局 | 查看各学校统计情况             |
-
----
-
-# 三、系统总体架构
-
-系统采用 **前后端分离架构**
+### 2.1 整体架构图
 
 ```
-React (前端)
-      │
-REST API
-      │
-Node.js (业务逻辑)
-      │
-MySQL (数据存储)
+┌─────────────────────────────────────────────────────────────────┐
+│                         前端 (Frontend)                          │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
+│  │   登录页    │  │   学生端    │  │   教师端    │              │
+│  │   Login     │  │  Student    │  │   Teacher   │              │
+│  └─────────────┘  └─────────────┘  └─────────────┘              │
+│         │                │                │                      │
+│         └────────────────┴────────────────┘                      │
+│                          │                                       │
+│                  ┌───────┴───────┐                              │
+│                  │  Axios 请求层  │                              │
+│                  └───────┬───────┘                              │
+└──────────────────────────┼──────────────────────────────────────┘
+                           │ HTTP/JSON
+                           ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                         后端 (Backend)                           │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                    Express Server                        │    │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐      │    │
+│  │  │ Auth Routes │  │Student Routes│ │Teacher Routes│      │    │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘      │    │
+│  │         │                │                │               │    │
+│  │         └────────────────┴────────────────┘               │    │
+│  │                          │                                │    │
+│  │                  ┌───────┴───────┐                        │    │
+│  │                  │ Auth Middleware│                       │    │
+│  │                  │ (JWT Verify)  │                        │    │
+│  │                  └───────┬───────┘                        │    │
+│  └──────────────────────────┼────────────────────────────────┘    │
+│                             │                                     │
+│                     ┌───────┴───────┐                            │
+│                     │  MySQL Pool   │                            │
+│                     └───────┬───────┘                            │
+└─────────────────────────────┼─────────────────────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │   MySQL Database│
+                    │   (psych_*)     │
+                    └─────────────────┘
 ```
 
-数据可视化：
+### 2.2 目录结构
 
 ```
-ECharts
-```
-
----
-
-# 四、系统功能设计
-
-# 4.1 学生端功能
-
-学生登录后流程：
-
-```
-登录
-  ↓
-进入心理测评
-  ↓
-判断是否已测评
-   ├─ 已测评 → 查看结果
-   └─ 未测评 → 生成试卷
-```
-
-生成试卷：
-
-```
-标准量表题 76题
-+
-扩展题库 EXT5 74题
-------------------
-共150题
-```
-
-学生完成测评后：
-
-- 自动计算心理评分
-- 生成心理报告
-- 显示六大心理维度
-
-```
-学习压力
-焦虑
-抑郁
-自尊
-社交
-网络行为
-```
-
-同时生成风险等级：
-
-```
-R0 无风险
-R1 轻度
-R2 中度
-R3 高风险
-```
-
-学生只能测评 **一次**
-
-数据库约束：
-
-```
-UNIQUE(user_id)
-```
-
----
-
-# 五、老师端功能
-
-老师进入系统可查看：
-
-### 1 全校心理统计
-
-统计指标：
-
-- 完成率
-- R0-R3分布
-- 六维度平均分
-
-可视化：
-
-```
-ECharts 柱状图
-ECharts 折线图
+heart/
+├── backend/
+│   ├── server.js              # Express 服务器入口
+│   ├── db.js                  # MySQL 连接池配置
+│   ├── package.json           # 后端依赖配置
+│   ├── middleware/
+│   │   └── auth.js            # JWT 认证中间件
+│   └── routes/
+│       ├── auth.js            # 认证路由 (登录/用户信息)
+│       ├── student.js         # 学生端路由 (测评/结果)
+│       └── teacher.js         # 教师端路由 (统计/学生列表)
+│
+└── frontend/
+    ├── package.json           # 前端依赖配置
+    ├── vite.config.js         # Vite 构建配置
+    ├── index.html             # HTML 入口
+    └── src/
+        ├── main.jsx           # React 应用入口
+        ├── App.jsx            # 根组件 (路由配置)
+        ├── index.less         # 全局样式
+        ├── var.less           # 样式变量
+        ├── app/               # 页面组件
+        │   ├── login/         # 登录页
+        │   ├── index/         # 首页 (学生)
+        │   ├── assessment/    # 测评页面
+        │   ├── teacher/       # 教师仪表盘
+        │   └── store/         # 全局状态 (Jotai)
+        ├── component/         # 公共组件
+        │   ├── Nav/           # 顶部导航
+        │   ├── HelpModal/     # 帮助弹窗
+        │   └── ResultsSection/# 结果展示组件
+        ├── constant/          # 常量配置
+        │   ├── apis.js        # API 服务器地址
+        │   ├── urls.js        # API 路径常量
+        │   ├── data.js        # 静态数据
+        │   └── sugg.json      # 建议文案模板
+        ├── util/              # 工具函数
+        │   ├── request.js     # Axios 封装
+        │   ├── token.js       # Token 管理
+        │   ├── fn.js          # 通用函数
+        │   ├── suggestionEngine.js  # 建议生成引擎
+        │   ├── teacherReportPdf.js  # PDF 报告生成
+        │   └── pdfFonts.js    # PDF 字体配置
+        └── img/               # 静态图片资源
 ```
 
 ---
 
-### 2 年级统计
+## 3. 数据库设计
 
+### 3.1 核心数据表
+
+#### 3.1.1 用户表 (psych_users)
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| id | INT | 主键 |
+| username | VARCHAR | 用户名 (唯一) |
+| password | VARCHAR | 密码 (明文) |
+| role | ENUM | 角色：student/teacher/bureau |
+| school_id | INT | 学校 ID |
+| school_name | VARCHAR | 学校名称 |
+| real_name | VARCHAR | 真实姓名 |
+| grade | INT | 年级 |
+| class_no | INT | 班级 |
+
+#### 3.1.2 量表题目表 (psych_items)
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| id | VARCHAR | 题目 ID (如 PHQ9-01) |
+| type | VARCHAR | 量表类型 (PHQ9/GAD7/RSES/UCLA/PSS/IAT/EXT5) |
+| question | TEXT | 题目内容 |
+| domain | VARCHAR | 所属维度 (学习压力/焦虑/抑郁等) |
+| facet | VARCHAR | 子维度 |
+| reverse_scored | TINYINT | 是否反向计分 |
+| options_json | JSON | 选项配置 |
+
+#### 3.1.3 量表选项表 (scale_options)
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| type | VARCHAR | 量表类型 |
+| options_json | JSON | 选项配置 |
+| max_score | INT | 最大分值 |
+
+#### 3.1.4 测评记录表 (psych_tests)
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| test_id | INT | 主键 |
+| user_id | INT | 用户 ID |
+| version | VARCHAR | 题库版本 |
+| status | ENUM | 状态：in_progress/finished |
+| finished_at | DATETIME | 完成时间 |
+| created_at | DATETIME | 创建时间 |
+
+#### 3.1.5 答案记录表 (psych_answers)
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| test_id | INT | 测评 ID |
+| item_id | VARCHAR | 题目 ID |
+| answer | INT | 用户答案 |
+| score | INT | 计算后的分数 |
+
+#### 3.1.6 测评结果表 (psych_results)
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| test_id | INT | 测评 ID |
+| risk_level | ENUM | 风险等级：R0/R1/R2/R3 |
+| risk_score | DECIMAL | 风险分数 (0-1) |
+| domains_json | JSON | 各维度得分 |
+| tags_json | JSON | 风险标签 |
+| created_at | DATETIME | 创建时间 |
+
+---
+
+## 4. API 接口设计
+
+### 4.1 认证接口
+
+#### POST /api/auth/login
+用户登录
+```json
+// 请求
+{ "username": "xxx", "password": "xxx" }
+
+// 响应
+{
+  "code": 200,
+  "message": "登录成功",
+  "data": {
+    "token": "jwt_token",
+    "user": {
+      "id": 1,
+      "username": "xxx",
+      "role": "student",
+      "school_id": 101,
+      "real_name": "张三",
+      "grade": 7,
+      "class_no": 2
+    }
+  }
+}
 ```
+
+#### GET /api/auth/me
+获取当前用户信息 (需 Token)
+
+### 4.2 学生端接口
+
+#### GET /api/student/test/generate
+生成试卷 (150 题)
+```json
+// 响应
+{
+  "code": 200,
+  "data": {
+    "test_id": 123,
+    "items": [
+      {
+        "id": "PHQ9-01",
+        "type": "PHQ9",
+        "question": "做事时提不起劲或没有兴趣",
+        "domain": "抑郁",
+        "facet": "情绪低落",
+        "reverse_scored": 0,
+        "options_json": [...]
+      }
+    ]
+  }
+}
+```
+
+#### GET /api/student/test/current
+获取当前进行中的试卷
+
+#### POST /api/student/test/submit
+提交答案
+```json
+// 请求
+{
+  "test_id": 123,
+  "answers": [
+    { "item_id": "PHQ9-01", "answer": 2 },
+    { "item_id": "GAD7-01", "answer": 1 }
+  ]
+}
+```
+
+#### GET /api/student/result
+获取测试结果
+
+### 4.3 教师端接口
+
+#### GET /api/teacher/stats/overview
+获取统计概览 (完成率/风险分布/维度均值)
+
+#### GET /api/teacher/stats/by-grade
 按年级统计
-```
 
-例如：
+#### GET /api/teacher/stats/by-class
+按班级统计
 
-| 年级 | R0  | R1  | R2  | R3  |
-| ---- | --- | --- | --- | --- |
+#### GET /api/teacher/students
+获取学生列表
 
----
-
-### 3 班级统计
-
-老师可选择：
-
-```
-年级 → 班级
-```
-
-查看班级心理状态。
+#### GET /api/teacher/student/:studentId/result
+获取指定学生结果
 
 ---
 
-### 4 学生详情
+## 5. 前端架构设计
 
-老师可点击某个学生查看：
+### 5.1 路由配置
 
-学生心理报告：
-
-```
-风险等级
-风险评分
-六维度分析
-```
-
-示例：
-
-```
-学习压力 0.65
-焦虑     0.54
-抑郁     0.32
-社交     0.41
-网络行为 0.22
-自尊     0.61
+```jsx
+// App.jsx
+<Routes>
+  <Route path="/login" element={<Login />} />
+  <Route path="/" element={<Index />} />           // 学生首页
+  <Route path="/student/assessment" element={<Assessment />} />
+  <Route path="/teacher" element={<Teacher />} />  // 教师仪表盘
+</Routes>
 ```
 
----
+### 5.2 状态管理 (Jotai)
 
-# 六、教育局功能
-
-教育局用户可以查看：
-
-```
-各学校心理统计
+```jsx
+// app/store/auth.js
+export const isLoginAtom = atom(false);      // 登录状态
+export const currentUserAtom = atom(null);   // 当前用户信息
 ```
 
-统计指标：
+### 5.3 请求封装
 
-- 各学校R3比例
-- 各学校平均风险
-- 各学校测评人数
+```jsx
+// util/request.js
+const service = axios.create({
+  baseURL: "/api",
+  timeout: 300000,
+  withCredentials: false
+});
 
-示例：
+// 请求拦截器：自动添加 Token
+service.interceptors.request.use((config) => {
+  const token = localStorage.getItem("AUTH_TOKEN");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-| 学校 | 测评人数 | R3比例 | 平均风险 |
-| ---- | -------- | ------ | -------- |
-
-支持排序：
-
-```
-R3率
-风险平均值
-```
-
----
-
-# 七、心理测评模型设计
-
-系统采用：
-
-```
-国际标准量表 + 扩展题库
-```
-
----
-
-# 7.1 标准量表
-
-| 量表          | 题数 |
-| ------------- | ---- |
-| PHQ9 抑郁     | 9    |
-| GAD7 焦虑     | 7    |
-| RSES 自尊     | 10   |
-| UCLA 社交孤独 | 20   |
-| PSS 压力      | 10   |
-| IAT 网络行为  | 20   |
-
-合计：
-
-```
-76题
-```
-
----
-
-# 7.2 扩展题库
-
-类型：
-
-```
-EXT5
-```
-
-选项：
-
-```
-0 从不
-1 很少
-2 有时
-3 经常
-4 总是
-```
-
-抽题规则：
-
-```
-共74题
-```
-
-按domain抽取：
-
-| domain   | 数量 |
-| -------- | ---- |
-| 学习压力 | 11   |
-| 焦虑     | 11   |
-| 抑郁     | 11   |
-| 社交     | 11   |
-| 网络行为 | 10   |
-| 自尊     | 10   |
-| 家庭关系 | 10   |
-
-总计：
-
-```
-74
-```
-
----
-
-# 八、风险评分模型
-
-每个维度计算：
-
-```
-domain_score = AVG(score) / max_score
-```
-
-总风险评分：
-
-```
-risk_score =
-0.30 × 抑郁
-0.25 × 焦虑
-0.20 × 学习压力
-0.15 × 社交
-0.10 × 网络行为
-```
-
----
-
-# 风险等级
-
-| 风险等级 | 条件      |
-| -------- | --------- |
-| R0       | <0.30     |
-| R1       | 0.30-0.50 |
-| R2       | 0.50-0.70 |
-| R3       | ≥0.70     |
-
-特殊规则：
-
-如果
-
-```
-PHQ9-09 ≥3
-```
-
-则直接：
-
-```
-R3
-```
-
----
-
-# 九、数据库设计
-
-系统核心表：
-
-```
-psych_users
-psych_items
-psych_tests
-psych_answers
-psych_results
-scale_options
-```
-
----
-
-# 9.1 用户表
-
-```
-psych_users
-```
-
-学生信息直接包含：
-
-```
-grade
-class_no
-```
-
-不建立班级表。
-
-```sql
-CREATE TABLE psych_users (
-id BIGINT PRIMARY KEY AUTO_INCREMENT,
-username VARCHAR(64) UNIQUE,
-password_hash VARCHAR(255),
-role ENUM('student','teacher','bureau'),
-school_id BIGINT,
-real_name VARCHAR(64),
-grade INT,
-class_no INT,
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+// 响应拦截器：统一错误处理
+service.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    // 401: 清除 Token 并跳转登录页
+    if (error.response?.status === 401) {
+      localStorage.removeItem("AUTH_TOKEN");
+      localStorage.removeItem("APP_USER");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
 );
 ```
 
+### 5.4 核心组件
+
+#### 5.4.1 登录组件 (Login)
+- 用户名/密码表单
+- Token 存储与状态同步
+- 登录成功后跳转首页
+
+#### 5.4.2 测评组件 (Assessment)
+- 题目展示 (单选)
+- 进度条显示
+- 题目导航 (前后跳转)
+- 答案提交
+
+#### 5.4.3 结果展示组件 (ResultsSection)
+- 综合风险等级展示
+- 六维度雷达图 (ECharts)
+- 风险标签展示
+- 建议措施生成
+- PDF 导出功能
+
+#### 5.4.4 教师仪表盘 (Teacher)
+- 筛选条件 (年级/班级)
+- 完成情况统计
+- 风险等级分布
+- 领域分布雷达图
+- 学生列表表格
+- 学生详情弹窗
+
 ---
 
-# 9.2 题库表
+## 6. 核心业务逻辑
 
-```
-psych_items
-```
+### 6.1 抽题算法 (150 题)
 
 ```sql
-CREATE TABLE psych_items (
-id varchar(16) PRIMARY KEY,
-type varchar(10),
-question text,
-domain varchar(32),
-facet varchar(64),
-reverse_scored tinyint(1),
-options_json json
-);
+-- 固定 76 题 (PHQ9/GAD7/RSES/UCLA/PSS/IAT) + EXT5 抽 74 题
+-- EXT5 抽题规则：
+-- 1. 每个 domain/facet 组合先选 1 题
+-- 2. 按 domain 配额分配：
+--    - 学习压力/焦虑/抑郁/社交：各 11 题
+--    - 网络行为/自尊/家庭关系：各 10 题
+```
+
+### 6.2 风险等级计算
+
+```javascript
+// 风险分数计算权重
+riskScore = 
+  抑郁得分 * 0.30 +
+  焦虑得分 * 0.25 +
+  学习压力得分 * 0.20 +
+  社交得分 * 0.15 +
+  网络行为得分 * 0.10
+
+// 风险等级判定
+if (PHQ9-09 自杀意念题 answer >= 3) riskLevel = "R3"
+else if (riskScore < 0.3) riskLevel = "R0"  // 低风险
+else if (riskScore < 0.5) riskLevel = "R1"  // 轻度关注
+else if (riskScore < 0.7) riskLevel = "R2"  // 中度风险
+else riskLevel = "R3"                        // 高风险
+```
+
+### 6.3 维度风险标签
+
+```javascript
+// 根据维度得分生成标签
+tags = {
+  自尊：v < 0.5 ? "selfesteem_low" : v < 0.7 ? "selfesteem_medium" : "selfesteem_high",
+  学习压力：v < 0.5 ? "academicstress_low" : v < 0.7 ? "academicstress_medium" : "academicstress_high",
+  焦虑：v < 0.5 ? "anxiety_low" : v < 0.7 ? "anxiety_medium" : "anxiety_high",
+  抑郁：v < 0.5 ? "depression_low" : v < 0.7 ? "depression_medium" : "depression_high",
+  社交：v < 0.5 ? "social_low" : v < 0.7 ? "social_medium" : "social_high",
+  网络行为：v < 0.5 ? "internet_low" : v < 0.7 ? "internet_medium" : "internet_high"
+}
+```
+
+### 6.4 建议生成引擎
+
+```javascript
+// util/suggestionEngine.js
+// 根据风险等级和维度得分生成个性化建议
+generatePsychSuggestion(result) {
+  return {
+    summary_level: "轻度关注",
+    summary_title: "整体心理状态基本良好...",
+    summary_content: "...",
+    priority_domains: ["学习压力", "焦虑"],
+    refer_required: false,
+    student_advice: ["建议 1", "建议 2", ...],
+    teacher_advice: ["建议 1", "建议 2", ...],
+    parent_advice: ["建议 1", "建议 2", ...],
+    actions: ["定期随访", "心理访谈"],
+    followup_days: 30,
+    matched_rules: ["RULE_01", ...]
+  }
+}
 ```
 
 ---
 
-# 9.3 测评表
+## 7. 安全设计
 
-```
-psych_tests
-```
+### 7.1 认证机制
+- JWT Token 认证，有效期 7 天
+- Token 存储于 localStorage
+- 请求头携带：`Authorization: Bearer <token>`
 
-```sql
-CREATE TABLE psych_tests (
-test_id bigint AUTO_INCREMENT PRIMARY KEY,
-user_id bigint,
-version varchar(64),
-started_at timestamp,
-finished_at timestamp,
-status enum('in_progress','finished'),
-UNIQUE(user_id)
-);
-```
+### 7.2 权限控制
+- 学生只能访问自己的测评数据
+- 教师只能访问本校学生数据
+- 教育局可访问辖区所有学校数据
 
-保证：
+### 7.3 中间件实现
+```javascript
+// middleware/auth.js
+function requireAuth(req, res, next) {
+  const token = req.headers.authorization?.split(" ")[1];
+  const decoded = jwt.verify(token, JWT_SECRET);
+  req.user = decoded;
+  next();
+}
 
-```
-学生只能测一次
-```
-
----
-
-# 9.4 答案表
-
-```
-psych_answers
-```
-
-```sql
-CREATE TABLE psych_answers (
-test_id bigint,
-item_id varchar(16),
-answer tinyint,
-score tinyint,
-answered_at timestamp,
-PRIMARY KEY(test_id,item_id)
-);
+function requireRole(...roles) {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ error: "FORBIDDEN" });
+    }
+    next();
+  };
+}
 ```
 
 ---
 
-# 9.5 结果表
+## 8. 部署配置
 
-```
-psych_results
-```
+### 8.1 环境变量
 
-```sql
-CREATE TABLE psych_results (
-test_id bigint PRIMARY KEY,
-risk_level enum('R0','R1','R2','R3'),
-risk_score decimal(6,4),
-domains_json json,
-tags_json json,
-created_at timestamp
-);
+```bash
+# 后端环境变量
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=your_password
+MYSQL_DATABASE=heart
+JWT_SECRET=your_secret_key
+PORT=3000
 ```
 
----
+### 8.2 前端构建配置
 
-# 9.6 量表选项表
-
-```
-scale_options
-```
-
-```sql
-CREATE TABLE scale_options (
-type varchar(10) PRIMARY KEY,
-scale_name varchar(64),
-time_window varchar(32),
-min_score int,
-max_score int,
-options_json json
-);
-```
-
----
-
-# 十、试卷生成算法
-
-生成试卷流程：
-
-```
-1 生成 psych_tests
-2 抽取标准量表 76题
-3 EXT5抽取74题
-4 返回150题
-```
-
-抽题 SQL 使用：
-
-```
-ROW_NUMBER()
-RAND()
-PARTITION BY domain
-```
-
-保证：
-
-```
-每个domain约10-11题
-facet尽量分散
+```javascript
+// vite.config.js
+export default defineConfig({
+  server: {
+    sourcemap: true
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+      "@app": path.resolve(__dirname, "src/app"),
+      "@util": path.resolve(__dirname, "src/util"),
+      "@constant": path.resolve(__dirname, "src/constant"),
+      "@component": path.resolve(__dirname, "src/component")
+    }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        entryFileNames: "js/[name]-[hash].js",
+        chunkFileNames: "js/[name]-[hash].js",
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name.endsWith(".css")) {
+            return "css/[name]-[hash][extname]";
+          }
+          return "assets/[name]-[hash][extname]";
+        }
+      }
+    }
+  }
+});
 ```
 
 ---
 
-# 十一、结果计算流程
+## 9. 开发指南
 
-学生提交答案：
+### 9.1 启动开发环境
 
-```
-写入 psych_answers
+```bash
+# 后端
+cd backend
+npm install
+npm run dev
+
+# 前端
+cd frontend
+npm install
+npm run dev
 ```
 
-然后：
-
-```
-计算 domain score
-计算 risk_score
-生成 risk_level
-生成 tags
-写入 psych_results
-```
+### 9.2 代码规范
+- 前端使用 ESLint 进行代码检查
+- 组件采用函数式写法 + Hooks
+- 样式使用 Less + CSS Modules
+- 文件命名：kebab-case (文件), camelCase (变量), PascalCase (组件)
 
 ---
 
-# 十二、统计分析 SQL
+## 10. 功能清单
 
-### 学校风险分布
+### 10.1 学生端
+- [x] 用户登录
+- [x] 生成测评试卷 (150 题)
+- [x] 在线答题 (支持跳转/暂存)
+- [x] 提交答案
+- [x] 查看测评结果
+- [x] 导出 PDF 报告
 
-```sql
-SELECT risk_level, COUNT(*)
-FROM psych_results
-GROUP BY risk_level;
-```
+### 10.2 教师端
+- [x] 统计概览 (完成率/风险分布)
+- [x] 年级/班级维度统计
+- [x] 学生列表查询
+- [x] 学生详情查看
+- [x] 导出统计报告
 
----
-
-### 年级统计
-
-```sql
-SELECT grade, risk_level, COUNT(*)
-FROM psych_results r
-JOIN psych_tests t ON r.test_id=t.test_id
-JOIN psych_users u ON u.id=t.user_id
-GROUP BY grade,risk_level;
-```
-
----
-
-### 班级统计
-
-```sql
-SELECT class_no,risk_level,COUNT(*)
-FROM psych_results r
-JOIN psych_tests t ON r.test_id=t.test_id
-JOIN psych_users u ON u.id=t.user_id
-GROUP BY class_no,risk_level;
-```
+### 10.3 待开发功能
+- [ ] 教育局端功能
+- [ ] 批量导入学生账号
+- [ ] 测评历史记录
+- [ ] 预警通知功能
+- [ ] 移动端适配优化
 
 ---
 
-# 十三、前端页面设计
+## 11. 版本历史
 
-学生端：
-
-```
-登录
-心理测评
-心理报告
-```
-
-老师端：
-
-```
-统计看板
-学生列表
-学生详情
-```
-
-教育局：
-
-```
-学校统计
-风险排行
-```
+| 版本 | 日期 | 更新内容 |
+|------|------|----------|
+| 1.0.0 | 2026-03 | 初始版本，完成核心测评功能 |
 
 ---
 
-# 十四、数据可视化设计
+## 12. 联系方式
 
-ECharts 图表：
-
-### 学校统计
-
-```
-R0-R3堆叠柱状图
-```
-
-### 年级趋势
-
-```
-折线图
-```
-
-### 班级对比
-
-```
-热力图
-```
-
-### 学生报告
-
-```
-六维度雷达图
-```
-
----
-
-# 十五、安全与数据保护
-
-措施：
-
-- JWT认证
-- 角色权限控制
-- 学生仅能访问自己的结果
-- 老师只能查看本校
-- 教育局查看全区
-
----
-
-# 十六、系统性能
-
-预计规模：
-
-```
-学生 5000+
-题库 3000+
-答案 750000+
-```
-
-MySQL完全可支持。
-
----
-
-# 十七、项目优势
-
-本系统具备：
-
-```
-国际心理量表
-扩展心理题库
-风险预测模型
-学校统计系统
-教育局监管系统
-```
-
-适用于：
-
-```
-中学
-大学
-教育局
-心理健康中心
-```
-
----
-
-如果需要，我可以再给你 **三部分非常关键的补充（真正上线级）**：
-
-1️⃣ **完整 Node.js API 设计（30+接口）**
-2️⃣ **React 页面结构 + ECharts 图表代码**
-3️⃣ **心理报告自动生成模板（学生报告PDF）**
-
-这三部分可以让你的系统 **直接上线运行**。
+如有问题或建议，请联系开发团队。

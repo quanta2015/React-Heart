@@ -120,7 +120,13 @@ const Assessment = () => {
     }
     const randomAnswers = {};
     items.forEach((item) => {
-      randomAnswers[item.id] = Math.floor(Math.random() * 5) + 1;
+      const values = Array.isArray(item.options_json) ? item.options_json.map((opt) => Number(opt.value)) : [];
+      const validValues = values.filter((v) => Number.isFinite(v));
+
+      if (validValues.length > 0) {
+        const idx = Math.floor(Math.random() * validValues.length);
+        randomAnswers[item.id] = validValues[idx];
+      }
     });
     setAnswers(randomAnswers);
     message.success("已随机填充所有答案");
@@ -197,7 +203,7 @@ const Assessment = () => {
           {/* 题目导航 - 只显示当前题目附近的题目 */}
           <div className={s.questionNav}>
             {items.map((_, index) => {
-              const isAnswered = answers[items[index].id];
+              const isAnswered = Object.prototype.hasOwnProperty.call(answers, items[index].id);
               const isCurrent = index === currentQuestion;
               // 只显示当前题目前后各 5 题，或者当前题目本身
               const shouldShow = Math.abs(index - currentQuestion) <= 5;

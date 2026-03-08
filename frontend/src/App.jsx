@@ -41,7 +41,12 @@ function App() {
 
   // 监听 auth-change 自定义事件（处理登录/登出）
   useEffect(() => {
-    const handleAuthChange = () => {
+    const handleAuthChange = (event) => {
+      const next = event?.detail?.isAuthenticated;
+      if (typeof next === "boolean") {
+        setIsAuthenticated(next);
+        return;
+      }
       setIsAuthenticated(checkAuth());
     };
     window.addEventListener("auth-change", handleAuthChange);
@@ -56,7 +61,7 @@ function App() {
     <Router>
       <Suspense fallback={<Loading />}>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} />
           <Route
             path="/"
             element={

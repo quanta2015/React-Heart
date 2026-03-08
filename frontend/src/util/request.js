@@ -74,7 +74,7 @@ const handleNetworkError = (errStatus, silentErrors = []) => {
         // 清除 token 并跳转到登录页
         localStorage.removeItem("AUTH_TOKEN");
         localStorage.removeItem("APP_USER");
-        window.location.href = "/login";
+        window.location.hash = "#/login";
         break;
       case 403:
         errMessage = "拒绝访问";
@@ -133,7 +133,7 @@ const handleAuthError = (errno) => {
   if (errno === 401) {
     localStorage.removeItem("AUTH_TOKEN");
     localStorage.removeItem("APP_USER");
-    window.location.href = "/login";
+    window.location.hash = "#/login";
   }
 };
 

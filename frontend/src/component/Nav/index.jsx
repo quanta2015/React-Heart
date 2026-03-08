@@ -32,6 +32,11 @@ const Nav = () => {
 
   const confirmLogout = () => {
     token.clear();
+    window.dispatchEvent(
+      new CustomEvent("auth-change", {
+        detail: { isAuthenticated: false }
+      })
+    );
     setOpen(false);
     nav("/login", { replace: true });
   };

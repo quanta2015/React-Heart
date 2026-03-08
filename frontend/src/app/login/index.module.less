@@ -1,95 +1,594 @@
-// 登录页面样式
-@primary-blue: #1677ff;
-@ai-purple: #722ed1;
-@bg-dark: #001529;
+@primary-blue: #2f74ea;
+@primary-blue-hover: #245fc1;
+@mint-green: #3cbf9a;
+@bg-light: #eaf4ff;
+@text-main: #1f2a44;
+@text-sub: #5e6c84;
+@border-color: #d9e6fb;
 
 .login {
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #000000 100%);
+  padding: 24px;
+  background: linear-gradient(160deg, #f4f9ff 0%, @bg-light 48%, #f0fff9 100%);
   overflow: hidden;
+  box-sizing: border-box;
 
-  // 动态渐变球体背景
-  .bgSphere1 {
+  .bgGlowTop,
+  .bgGlowBottom {
     position: absolute;
-    top: -10%;
-    right: -5%;
-    width: 450px;
-    height: 450px;
-    background: radial-gradient(circle, rgba(22, 119, 255, 0.15) 0%, transparent 70%);
-    filter: blur(60px);
-    animation: move 20s infinite alternate;
+    border-radius: 999px;
+    pointer-events: none;
+    filter: blur(6px);
   }
 
-  .bgSphere2 {
-    position: absolute;
-    bottom: -10%;
-    left: -5%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(114, 46, 209, 0.1) 0%, transparent 70%);
-    filter: blur(60px);
-    animation: move 15s infinite alternate-reverse;
+  .bgGlowTop {
+    top: -120px;
+    right: -90px;
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, rgba(47, 116, 234, 0.22) 0%, rgba(47, 116, 234, 0) 68%);
+    animation: floatTop 14s ease-in-out infinite alternate;
+  }
+
+  .bgGlowBottom {
+    bottom: -140px;
+    left: -90px;
+    width: 360px;
+    height: 360px;
+    background: radial-gradient(circle, rgba(60, 191, 154, 0.2) 0%, rgba(60, 191, 154, 0) 68%);
+    animation: floatBottom 16s ease-in-out infinite alternate;
   }
 }
 
 .loginCard {
-  z-index: 10;
+  position: relative;
+  z-index: 2;
   width: 100%;
-  max-width: 420px;
-  padding: 40px 32px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: 1080px;
+  border: 1px solid rgba(47, 116, 234, 0.18);
+  border-radius: 24px;
+  box-shadow: 0 18px 36px rgba(31, 42, 68, 0.14);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(3px);
   animation: fadeIn 0.8s ease-out;
+  overflow: hidden;
 
   :global {
+    .ant-card-body {
+      padding: 0;
+    }
+
+    .ant-form-item {
+      margin-bottom: 18px;
+    }
+
     .ant-input-affix-wrapper {
-      height: 44px;
-      border-radius: 8px;
+      height: 48px;
+      border-radius: 12px;
+      border-color: #d6e3f8;
+      padding: 0 14px;
+
+      &:hover,
+      &:focus,
+      &.ant-input-affix-wrapper-focused {
+        border-color: @primary-blue;
+        box-shadow: 0 0 0 3px rgba(47, 116, 234, 0.12);
+      }
+
+      input {
+        font-size: 15px;
+      }
     }
 
     .ant-btn-primary {
-      border-radius: 8px;
+      height: 48px;
+      border-radius: 12px;
       font-size: 16px;
-      font-weight: 500;
+      font-weight: 600;
+      border: none;
+      background: linear-gradient(135deg, @primary-blue 0%, @mint-green 100%);
+      box-shadow: 0 10px 18px rgba(47, 116, 234, 0.22);
+
+      &:hover,
+      &:focus {
+        background: linear-gradient(135deg, @primary-blue-hover 0%, #34a485 100%);
+      }
+    }
+
+    .ant-typography {
+      margin-bottom: 0;
     }
   }
+}
+
+.loginLayout {
+  display: flex;
+  min-height: 620px;
+}
+
+.leftPanel {
+  width: 48%;
+  padding: 32px 28px;
+  background: linear-gradient(180deg, rgba(234, 244, 255, 0.82) 0%, rgba(240, 255, 249, 0.75) 100%);
+  border-right: 1px solid #e8eef8;
+  box-sizing: border-box;
+}
+
+.rightPanel {
+  width: 52%;
+  padding: 38px 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
+}
+
+.logoWrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.logoBadge {
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(140deg, rgba(47, 116, 234, 0.14) 0%, rgba(60, 191, 154, 0.14) 100%);
+  border: 1px solid rgba(47, 116, 234, 0.25);
+  box-shadow: 0 10px 18px rgba(47, 116, 234, 0.12);
+}
+
+.logoMark {
+  width: 42px;
+  height: 42px;
+  stroke: @primary-blue;
+  stroke-width: 2.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.title {
+  margin-bottom: 6px !important;
+  color: @text-main !important;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  color: @text-sub;
+  font-size: 14px;
+}
+
+.roleSection {
+  margin-top: 8px;
+}
+
+.roleSectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.roleSectionTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: @text-main;
+}
+
+.currentRoleText {
+  font-size: 13px;
+  color: @primary-blue;
+  background: rgba(47, 116, 234, 0.08);
+  border: 1px solid rgba(47, 116, 234, 0.12);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.roleList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.roleCard {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  text-align: left;
+  padding: 16px 14px;
+  border: 1px solid @border-color;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  outline: none;
+  box-sizing: border-box;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgba(47, 116, 234, 0.45);
+    box-shadow: 0 10px 18px rgba(47, 116, 234, 0.1);
+  }
+}
+
+.roleCardActive {
+  border-color: @primary-blue;
+  background: linear-gradient(135deg, rgba(47, 116, 234, 0.08) 0%, rgba(60, 191, 154, 0.08) 100%);
+  box-shadow: 0 12px 20px rgba(47, 116, 234, 0.14);
+}
+
+.roleIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: @primary-blue;
+  background: rgba(47, 116, 234, 0.1);
+}
+
+.roleContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.roleTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.roleTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: @text-main;
+}
+
+.roleTag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: @primary-blue;
+  background: rgba(47, 116, 234, 0.12);
+  white-space: nowrap;
+}
+
+.roleDesc {
+  display: block;
+  color: @text-sub;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.formHeader {
+  margin-bottom: 24px;
+}
+
+.formTitle {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 24px;
+  font-weight: 700;
+  color: @text-main;
+}
+
+.formTip {
+  color: @text-sub;
+  font-size: 14px;
 }
 
 .footer {
   text-align: center;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #f0f0f0;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #e9eef8;
 }
 
-// 动画定义
-@keyframes move {
+.footerText {
+  color: #7a869d;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@keyframes floatTop {
   0% {
     transform: translate(0, 0) scale(1);
   }
   100% {
-    transform: translate(30px, 20px) scale(1.1);
+    transform: translate(-14px, 10px) scale(1.08);
+  }
+}
+
+@keyframes floatBottom {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(14px, -10px) scale(1.06);
   }
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(18px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .login {
+    padding: 16px;
+    align-items: center;
+  }
+
+  .loginCard {
+    max-width: 680px;
+    border-radius: 20px;
+  }
+
+  .loginLayout {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .leftPanel,
+  .rightPanel {
+    width: 100%;
+  }
+
+  .leftPanel {
+    border-right: none;
+    border-bottom: 1px solid #e8eef8;
+    padding: 24px 20px 18px;
+  }
+
+  .rightPanel {
+    padding: 24px 20px 22px;
+  }
+
+  .header {
+    margin-bottom: 16px;
+  }
+
+  .logoBadge {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+  }
+
+  .logoMark {
+    width: 36px;
+    height: 36px;
+  }
+
+  .title {
+    font-size: 24px !important;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 640px) {
+  .login {
+    padding: 12px;
+    align-items: stretch;
+  }
+
+  .loginCard {
+    border-radius: 16px;
+  }
+
+  .leftPanel {
+    padding: 18px 14px 14px;
+  }
+
+  .rightPanel {
+    padding: 20px 14px 18px;
+  }
+
+  .header {
+    margin-bottom: 12px;
+  }
+
+  .logoWrap {
+    margin-bottom: 8px;
+  }
+
+  .logoBadge {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+  }
+
+  .logoMark {
+    width: 30px;
+    height: 30px;
+    stroke-width: 2.1;
+  }
+
+  .title {
+    font-size: 20px !important;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  .roleSection {
+    margin-top: 2px;
+  }
+
+  .roleSectionHead {
+    margin-bottom: 10px;
+  }
+
+  .roleSectionTitle {
+    font-size: 14px;
+  }
+
+  .currentRoleText {
+    font-size: 12px;
+    padding: 2px 8px;
+  }
+
+  // 移动端重新设计：三列紧凑选择，不再用大卡片说明
+  .roleList {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .roleCard {
+    min-height: 72px;
+    padding: 10px 6px;
+    border-radius: 12px;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .roleIcon {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    font-size: 16px;
+  }
+
+  .roleContent {
+    width: 100%;
+    text-align: center;
+  }
+
+  .roleTitleRow {
+    margin-bottom: 0;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .roleTitle {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  .roleTag {
+    font-size: 10px;
+    padding: 1px 6px;
+  }
+
+  .roleDesc {
+    display: none;
+  }
+
+  .formHeader {
+    margin-bottom: 18px;
+  }
+
+  .formTitle {
+    font-size: 20px;
+  }
+
+  .formTip {
+    font-size: 13px;
+  }
+
+  .footer {
+    margin-top: 12px;
+    padding-top: 10px;
+  }
+
+  .footerText {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  :global {
+    .ant-form-item {
+      margin-bottom: 14px;
+    }
+
+    .ant-input-affix-wrapper {
+      height: 44px;
+      font-size: 16px;
+      border-radius: 10px;
+      padding: 0 12px;
+    }
+
+    .ant-btn-primary {
+      height: 44px;
+      font-size: 15px;
+      border-radius: 10px;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .leftPanel {
+    padding: 16px 12px 12px;
+  }
+
+  .rightPanel {
+    padding: 18px 12px 16px;
+  }
+
+  .title {
+    font-size: 18px !important;
+  }
+
+  .formTitle {
+    font-size: 18px;
+  }
+
+  .roleList {
+    gap: 6px;
+  }
+
+  .roleCard {
+    min-height: 66px;
+    padding: 8px 4px;
+  }
+
+  .roleIcon {
+    width: 28px;
+    height: 28px;
+    font-size: 15px;
+  }
+
+  .roleTitle {
+    font-size: 12px;
+  }
+
+  .roleTag {
+    font-size: 9px;
+    padding: 1px 5px;
   }
 }
