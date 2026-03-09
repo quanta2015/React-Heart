@@ -374,15 +374,16 @@
 
 // export default Index;
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { Suspense, lazy, useState, useEffect, useMemo } from "react";
 import { Spin, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import * as urls from "@/constant/urls";
 import { get } from "@/util/request";
 import token from "@/util/token";
 import s from "./index.module.less";
-import ResultsSection from "@/component/ResultsSection";
-import ParentResultsSection from "@/component/ParentResultsSection";
+
+const ResultsSection = lazy(() => import("@/component/ResultsSection"));
+const ParentResultsSection = lazy(() => import("@/component/ParentResultsSection"));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -498,6 +499,12 @@ const Index = () => {
     }
   };
 
+  const resultsLoadingNode = (
+    <div className={s.loading}>
+      <Spin size="large" tip="报告加载中..." />
+    </div>
+  );
+
   return (
     <div className={s.container}>
       {loading && (
@@ -529,11 +536,13 @@ const Index = () => {
           </div>
 
           {testStatus === "finished" && result ? (
-            isParent ? (
-              <ParentResultsSection result={result} user={currentUser} />
-            ) : (
-              <ResultsSection result={result} user={currentUser} />
-            )
+            <Suspense fallback={resultsLoadingNode}>
+              {isParent ? (
+                <ParentResultsSection result={result} user={currentUser} />
+              ) : (
+                <ResultsSection result={result} user={currentUser} />
+              )}
+            </Suspense>
           ) : (
             <div className={s.assessmentCard}>
               <div className={s.cardImage}>

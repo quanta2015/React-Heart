@@ -25,19 +25,26 @@ const Layout = ({ children }) => (
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const [checked, setChecked] = useState(false);
 
-  // 检查登录状态的函数
-  const checkAuth = useCallback(() => {
+  // 检查登录状态及当前角色
+  const getAuthState = useCallback(() => {
     const user = token.loadUser();
     const tok = token.get();
-    return !!(user && tok);
+    const isAuthed = !!(user && tok);
+    return {
+      isAuthenticated: isAuthed,
+      role: isAuthed ? user?.role || null : null
+    };
   }, []);
 
   useEffect(() => {
-    setIsAuthenticated(checkAuth());
+    const state = getAuthState();
+    setIsAuthenticated(state.isAuthenticated);
+    setUserRole(state.role);
     setChecked(true);
-  }, [checkAuth]);
+  }, [getAuthState]);
 
   // 监听 auth-change 自定义事件（处理登录/登出）
   useEffect(() => {
@@ -45,13 +52,21 @@ function App() {
       const next = event?.detail?.isAuthenticated;
       if (typeof next === "boolean") {
         setIsAuthenticated(next);
+        if (!next) {
+          setUserRole(null);
+          return;
+        }
+        const state = getAuthState();
+        setUserRole(state.role);
         return;
       }
-      setIsAuthenticated(checkAuth());
+      const state = getAuthState();
+      setIsAuthenticated(state.isAuthenticated);
+      setUserRole(state.role);
     };
     window.addEventListener("auth-change", handleAuthChange);
     return () => window.removeEventListener("auth-change", handleAuthChange);
-  }, [checkAuth]);
+  }, [getAuthState]);
 
   if (!checked) {
     return <Loading />;
@@ -66,9 +81,13 @@ function App() {
             path="/"
             element={
               isAuthenticated ? (
-                <Layout>
-                  <Index />
-                </Layout>
+                userRole === "teacher" ? (
+                  <Navigate to="/teacher" replace />
+                ) : (
+                  <Layout>
+                    <Index />
+                  </Layout>
+                )
               ) : (
                 <Navigate to="/login" replace />
               )

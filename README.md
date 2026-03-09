@@ -3,26 +3,30 @@
 ## 1. 项目概述
 
 ### 1.1 项目名称
+
 心理健康测评系统 (Heart Health Assessment System)
 
 ### 1.2 项目简介
-本项目是一个面向学校的学生心理健康测评系统，支持学生在线完成心理测评问卷，系统自动计算风险等级并生成评估报告。教师端提供班级/年级维度的统计分析功能，帮助学校及时发现和关注需要心理支持的学生。
+
+本项目是一个面向学校的学生心理健康测评系统，支持学生在线完成心理测评问卷，系统自动计算风险等级并生成评估报告。教师端提供班级/年级维度的统计分析功能，帮助学校及时发现和关注需要心理支持的学生。家长端允许家长查看学生的测评结果和建议。
 
 ### 1.3 技术栈
 
-| 层级 | 技术选型 |
-|------|----------|
-| 前端框架 | React 18 + Vite |
-| UI 组件库 | Ant Design 5.x |
-| 状态管理 | Jotai |
-| 路由 | React Router DOM 7.x |
-| 图表 | ECharts 6.x |
-| HTTP 客户端 | Axios |
-| 样式 | Less + CSS Modules |
-| 后端框架 | Node.js + Express 5.x |
-| 数据库 | MySQL 8.x (mysql2) |
-| 认证 | JWT (jsonwebtoken) |
-| 文件上传 | Multer |
+| 层级        | 技术选型              |
+| ----------- | --------------------- |
+| 前端框架    | React 18 + Vite       |
+| UI 组件库   | Ant Design 5.x        |
+| 状态管理    | Jotai                 |
+| 路由        | React Router DOM 7.x  |
+| 图表        | ECharts 6.x           |
+| HTTP 客户端 | Axios                 |
+| 样式        | Less + CSS Modules    |
+| 后端框架    | Node.js + Express 5.x |
+| 数据库      | MySQL 8.x (mysql2)    |
+| 认证        | JWT (jsonwebtoken)    |
+| 文件上传    | Multer                |
+| 实时通信    | MQTT                  |
+| PDF 生成    | jsPDF + html2canvas   |
 
 ---
 
@@ -79,7 +83,7 @@
 ```
 heart/
 ├── backend/
-│   ├── server.js              # Express 服务器入口
+│   ├── heart.js               # Express 服务器入口
 │   ├── db.js                  # MySQL 连接池配置
 │   ├── package.json           # 后端依赖配置
 │   ├── middleware/
@@ -87,7 +91,8 @@ heart/
 │   └── routes/
 │       ├── auth.js            # 认证路由 (登录/用户信息)
 │       ├── student.js         # 学生端路由 (测评/结果)
-│       └── teacher.js         # 教师端路由 (统计/学生列表)
+│       ├── teacher.js         # 教师端路由 (统计/学生列表)
+│       └── parent.js          # 家长端路由 (学生结果查看)
 │
 └── frontend/
     ├── package.json           # 前端依赖配置
@@ -107,21 +112,26 @@ heart/
         ├── component/         # 公共组件
         │   ├── Nav/           # 顶部导航
         │   ├── HelpModal/     # 帮助弹窗
-        │   └── ResultsSection/# 结果展示组件
+        │   ├── ResultsSection/# 学生结果展示组件
+        │   └── ParentResultsSection/# 家长结果查看组件
         ├── constant/          # 常量配置
         │   ├── apis.js        # API 服务器地址
         │   ├── urls.js        # API 路径常量
         │   ├── data.js        # 静态数据
-        │   └── sugg.json      # 建议文案模板
+        │   ├── sugg-student.json  # 学生建议文案模板
+        │   └── sugg-parent.json   # 家长建议文案模板
         ├── util/              # 工具函数
         │   ├── request.js     # Axios 封装
         │   ├── token.js       # Token 管理
         │   ├── fn.js          # 通用函数
-        │   ├── suggestionEngine.js  # 建议生成引擎
+        │   ├── suggEngineStudent.js  # 学生建议生成引擎
+        │   ├── suggEngineParent.js   # 家长建议生成引擎
         │   ├── teacherReportPdf.js  # PDF 报告生成
         │   └── pdfFonts.js    # PDF 字体配置
         └── img/               # 静态图片资源
 ```
+
+---
 
 ---
 
@@ -130,63 +140,69 @@ heart/
 ### 3.1 核心数据表
 
 #### 3.1.1 用户表 (psych_users)
-| 字段名 | 类型 | 说明 |
-|--------|------|------|
-| id | INT | 主键 |
-| username | VARCHAR | 用户名 (唯一) |
-| password | VARCHAR | 密码 (明文) |
-| role | ENUM | 角色：student/teacher/bureau |
-| school_id | INT | 学校 ID |
-| school_name | VARCHAR | 学校名称 |
-| real_name | VARCHAR | 真实姓名 |
-| grade | INT | 年级 |
-| class_no | INT | 班级 |
+
+| 字段名      | 类型    | 说明                         |
+| ----------- | ------- | ---------------------------- |
+| id          | INT     | 主键                         |
+| username    | VARCHAR | 用户名 (唯一)                |
+| password    | VARCHAR | 密码 (明文)                  |
+| role        | ENUM    | 角色：student/teacher/bureau |
+| school_id   | INT     | 学校 ID                      |
+| school_name | VARCHAR | 学校名称                     |
+| real_name   | VARCHAR | 真实姓名                     |
+| grade       | INT     | 年级                         |
+| class_no    | INT     | 班级                         |
 
 #### 3.1.2 量表题目表 (psych_items)
-| 字段名 | 类型 | 说明 |
-|--------|------|------|
-| id | VARCHAR | 题目 ID (如 PHQ9-01) |
-| type | VARCHAR | 量表类型 (PHQ9/GAD7/RSES/UCLA/PSS/IAT/EXT5) |
-| question | TEXT | 题目内容 |
-| domain | VARCHAR | 所属维度 (学习压力/焦虑/抑郁等) |
-| facet | VARCHAR | 子维度 |
-| reverse_scored | TINYINT | 是否反向计分 |
-| options_json | JSON | 选项配置 |
+
+| 字段名         | 类型    | 说明                                        |
+| -------------- | ------- | ------------------------------------------- |
+| id             | VARCHAR | 题目 ID (如 PHQ9-01)                        |
+| type           | VARCHAR | 量表类型 (PHQ9/GAD7/RSES/UCLA/PSS/IAT/EXT5) |
+| question       | TEXT    | 题目内容                                    |
+| domain         | VARCHAR | 所属维度 (学习压力/焦虑/抑郁等)             |
+| facet          | VARCHAR | 子维度                                      |
+| reverse_scored | TINYINT | 是否反向计分                                |
+| options_json   | JSON    | 选项配置                                    |
 
 #### 3.1.3 量表选项表 (scale_options)
-| 字段名 | 类型 | 说明 |
-|--------|------|------|
-| type | VARCHAR | 量表类型 |
-| options_json | JSON | 选项配置 |
-| max_score | INT | 最大分值 |
+
+| 字段名       | 类型    | 说明     |
+| ------------ | ------- | -------- |
+| type         | VARCHAR | 量表类型 |
+| options_json | JSON    | 选项配置 |
+| max_score    | INT     | 最大分值 |
 
 #### 3.1.4 测评记录表 (psych_tests)
-| 字段名 | 类型 | 说明 |
-|--------|------|------|
-| test_id | INT | 主键 |
-| user_id | INT | 用户 ID |
-| version | VARCHAR | 题库版本 |
-| status | ENUM | 状态：in_progress/finished |
-| finished_at | DATETIME | 完成时间 |
-| created_at | DATETIME | 创建时间 |
+
+| 字段名      | 类型     | 说明                       |
+| ----------- | -------- | -------------------------- |
+| test_id     | INT      | 主键                       |
+| user_id     | INT      | 用户 ID                    |
+| version     | VARCHAR  | 题库版本                   |
+| status      | ENUM     | 状态：in_progress/finished |
+| finished_at | DATETIME | 完成时间                   |
+| created_at  | DATETIME | 创建时间                   |
 
 #### 3.1.5 答案记录表 (psych_answers)
-| 字段名 | 类型 | 说明 |
-|--------|------|------|
-| test_id | INT | 测评 ID |
-| item_id | VARCHAR | 题目 ID |
-| answer | INT | 用户答案 |
-| score | INT | 计算后的分数 |
+
+| 字段名  | 类型    | 说明         |
+| ------- | ------- | ------------ |
+| test_id | INT     | 测评 ID      |
+| item_id | VARCHAR | 题目 ID      |
+| answer  | INT     | 用户答案     |
+| score   | INT     | 计算后的分数 |
 
 #### 3.1.6 测评结果表 (psych_results)
-| 字段名 | 类型 | 说明 |
-|--------|------|------|
-| test_id | INT | 测评 ID |
-| risk_level | ENUM | 风险等级：R0/R1/R2/R3 |
-| risk_score | DECIMAL | 风险分数 (0-1) |
-| domains_json | JSON | 各维度得分 |
-| tags_json | JSON | 风险标签 |
-| created_at | DATETIME | 创建时间 |
+
+| 字段名       | 类型     | 说明                  |
+| ------------ | -------- | --------------------- |
+| test_id      | INT      | 测评 ID               |
+| risk_level   | ENUM     | 风险等级：R0/R1/R2/R3 |
+| risk_score   | DECIMAL  | 风险分数 (0-1)        |
+| domains_json | JSON     | 各维度得分            |
+| tags_json    | JSON     | 风险标签              |
+| created_at   | DATETIME | 创建时间              |
 
 ---
 
@@ -195,7 +211,9 @@ heart/
 ### 4.1 认证接口
 
 #### POST /api/auth/login
+
 用户登录
+
 ```json
 // 请求
 { "username": "xxx", "password": "xxx" }
@@ -220,12 +238,15 @@ heart/
 ```
 
 #### GET /api/auth/me
+
 获取当前用户信息 (需 Token)
 
 ### 4.2 学生端接口
 
 #### GET /api/student/test/generate
+
 生成试卷 (150 题)
+
 ```json
 // 响应
 {
@@ -248,10 +269,13 @@ heart/
 ```
 
 #### GET /api/student/test/current
+
 获取当前进行中的试卷
 
 #### POST /api/student/test/submit
+
 提交答案
+
 ```json
 // 请求
 {
@@ -264,24 +288,40 @@ heart/
 ```
 
 #### GET /api/student/result
+
 获取测试结果
 
 ### 4.3 教师端接口
 
 #### GET /api/teacher/stats/overview
+
 获取统计概览 (完成率/风险分布/维度均值)
 
 #### GET /api/teacher/stats/by-grade
+
 按年级统计
 
 #### GET /api/teacher/stats/by-class
+
 按班级统计
 
 #### GET /api/teacher/students
+
 获取学生列表
 
 #### GET /api/teacher/student/:studentId/result
+
 获取指定学生结果
+
+### 4.4 家长端接口
+
+#### GET /api/parent/children
+
+获取绑定的孩子列表
+
+#### GET /api/parent/child/:childId/result
+
+获取指定孩子的测评结果
 
 ---
 
@@ -293,9 +333,9 @@ heart/
 // App.jsx
 <Routes>
   <Route path="/login" element={<Login />} />
-  <Route path="/" element={<Index />} />           // 学生首页
+  <Route path="/" element={<Index />} /> // 学生首页
   <Route path="/student/assessment" element={<Assessment />} />
-  <Route path="/teacher" element={<Teacher />} />  // 教师仪表盘
+  <Route path="/teacher" element={<Teacher />} /> // 教师仪表盘
 </Routes>
 ```
 
@@ -303,8 +343,8 @@ heart/
 
 ```jsx
 // app/store/auth.js
-export const isLoginAtom = atom(false);      // 登录状态
-export const currentUserAtom = atom(null);   // 当前用户信息
+export const isLoginAtom = atom(false); // 登录状态
+export const currentUserAtom = atom(null); // 当前用户信息
 ```
 
 ### 5.3 请求封装
@@ -344,17 +384,20 @@ service.interceptors.response.use(
 ### 5.4 核心组件
 
 #### 5.4.1 登录组件 (Login)
+
 - 用户名/密码表单
 - Token 存储与状态同步
 - 登录成功后跳转首页
 
 #### 5.4.2 测评组件 (Assessment)
+
 - 题目展示 (单选)
 - 进度条显示
 - 题目导航 (前后跳转)
 - 答案提交
 
 #### 5.4.3 结果展示组件 (ResultsSection)
+
 - 综合风险等级展示
 - 六维度雷达图 (ECharts)
 - 风险标签展示
@@ -362,12 +405,21 @@ service.interceptors.response.use(
 - PDF 导出功能
 
 #### 5.4.4 教师仪表盘 (Teacher)
+
 - 筛选条件 (年级/班级)
 - 完成情况统计
 - 风险等级分布
 - 领域分布雷达图
 - 学生列表表格
 - 学生详情弹窗
+
+#### 5.4.5 家长结果查看组件 (ParentResultsSection)
+
+- 孩子选择下拉框
+- 综合风险等级展示
+- 六维度雷达图 (ECharts)
+- 风险标签展示
+- 家长专属建议措施
 
 ---
 
@@ -388,7 +440,7 @@ service.interceptors.response.use(
 
 ```javascript
 // 风险分数计算权重
-riskScore = 
+riskScore =
   抑郁得分 * 0.30 +
   焦虑得分 * 0.25 +
   学习压力得分 * 0.20 +
@@ -444,16 +496,20 @@ generatePsychSuggestion(result) {
 ## 7. 安全设计
 
 ### 7.1 认证机制
+
 - JWT Token 认证，有效期 7 天
 - Token 存储于 localStorage
 - 请求头携带：`Authorization: Bearer <token>`
 
 ### 7.2 权限控制
+
 - 学生只能访问自己的测评数据
 - 教师只能访问本校学生数据
+- 家长只能访问自己孩子的测评数据
 - 教育局可访问辖区所有学校数据
 
 ### 7.3 中间件实现
+
 ```javascript
 // middleware/auth.js
 function requireAuth(req, res, next) {
@@ -543,6 +599,7 @@ npm run dev
 ```
 
 ### 9.2 代码规范
+
 - 前端使用 ESLint 进行代码检查
 - 组件采用函数式写法 + Hooks
 - 样式使用 Less + CSS Modules
@@ -553,6 +610,7 @@ npm run dev
 ## 10. 功能清单
 
 ### 10.1 学生端
+
 - [x] 用户登录
 - [x] 生成测评试卷 (150 题)
 - [x] 在线答题 (支持跳转/暂存)
@@ -561,13 +619,21 @@ npm run dev
 - [x] 导出 PDF 报告
 
 ### 10.2 教师端
+
 - [x] 统计概览 (完成率/风险分布)
 - [x] 年级/班级维度统计
 - [x] 学生列表查询
 - [x] 学生详情查看
 - [x] 导出统计报告
 
-### 10.3 待开发功能
+### 10.3 家长端
+
+- [x] 查看绑定孩子列表
+- [x] 查看孩子测评结果
+- [x] 获取家长专属建议
+
+### 10.4 待开发功能
+
 - [ ] 教育局端功能
 - [ ] 批量导入学生账号
 - [ ] 测评历史记录
@@ -578,12 +644,6 @@ npm run dev
 
 ## 11. 版本历史
 
-| 版本 | 日期 | 更新内容 |
-|------|------|----------|
+| 版本  | 日期    | 更新内容                   |
+| ----- | ------- | -------------------------- |
 | 1.0.0 | 2026-03 | 初始版本，完成核心测评功能 |
-
----
-
-## 12. 联系方式
-
-如有问题或建议，请联系开发团队。

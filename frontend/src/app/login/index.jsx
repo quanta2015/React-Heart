@@ -49,6 +49,10 @@ const Login = () => {
     async (values) => {
       const { username, password } = values;
 
+      const preloadTargetPage = () =>
+        selectedRole === "teacher" ? import("@/app/teacher") : import("@/app/index");
+      preloadTargetPage().catch(() => {});
+
       setLoading(true);
       try {
         const res = await post(
@@ -83,7 +87,7 @@ const Login = () => {
           setIsLogin(true);
           setCurrentUser(mergedUser);
 
-          message.success(`${currentRole.label}登录成功`);
+          message.success(`登录成功`);
 
           // 先更新 App 组件的认证状态，再跳转
           window.dispatchEvent(

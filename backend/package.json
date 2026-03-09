@@ -2,10 +2,10 @@
   "name": "heart-backend",
   "version": "1.0.0",
   "description": "心理健康测评系统后端",
-  "main": "server.js",
+  "main": "heart.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node heart.js",
+    "dev": "nodemon heart.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
