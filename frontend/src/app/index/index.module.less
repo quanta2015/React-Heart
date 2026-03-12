@@ -396,6 +396,36 @@
     }
   }
 
+  // 测评完成提示卡片
+  .completedCard {
+    margin: 16px;
+    background-color: @card-bg-light;
+    border-radius: 12px;
+    border: 1px solid @primary-border;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 48px 24px;
+    text-align: center;
+
+    .completedIcon {
+      font-size: 64px;
+      margin-bottom: 24px;
+    }
+
+    .completedTitle {
+      font-size: 20px;
+      font-weight: 700;
+      color: @text-primary;
+      margin: 0 0 8px;
+    }
+
+    .completedDesc {
+      font-size: 14px;
+      color: @text-secondary;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+
   // 结果详情卡片
   .resultDetailCard {
     margin: 16px;
@@ -556,6 +586,7 @@
 
   .assessmentCard,
   .noTestCard,
+  .completedCard,
   .resultDetailCard,
   .resultsSection .resultCard {
     background-color: @card-bg-dark;

@@ -536,13 +536,21 @@ const Index = () => {
           </div>
 
           {testStatus === "finished" && result ? (
-            <Suspense fallback={resultsLoadingNode}>
-              {isParent ? (
+            isStudent ? (
+              <div className={s.completedCard}>
+                <div className={s.completedIcon}>✅</div>
+                <h2 className={s.completedTitle}>测评已完成</h2>
+                <p className={s.completedDesc}>
+                  你已完成本次心理健康测评
+                  <br />
+                  测评结果将由学校心理老师进行专业分析
+                </p>
+              </div>
+            ) : (
+              <Suspense fallback={resultsLoadingNode}>
                 <ParentResultsSection result={result} user={currentUser} />
-              ) : (
-                <ResultsSection result={result} user={currentUser} />
-              )}
-            </Suspense>
+              </Suspense>
+            )
           ) : (
             <div className={s.assessmentCard}>
               <div className={s.cardImage}>
