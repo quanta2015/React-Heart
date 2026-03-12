@@ -73,8 +73,8 @@ const Nav = () => {
                 (
                 {user.role === "student"
                   ? "学生"
-                  : user.role === "teacher"
-                    ? "教师"
+                  : user.role === "manager"
+                    ? "管理员"
                     : user.role === "parent"
                       ? "家长"
                       : "教育局"}

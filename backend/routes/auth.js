@@ -122,11 +122,11 @@ router.post("/dev-create-user", async (req, res) => {
     });
   }
 
-  if (!["student", "teacher", "parent"].includes(role)) {
+  if (!["student", "manager", "parent"].includes(role)) {
     return res.status(422).json({
       code: 422,
       error: "INVALID_ROLE",
-      message: "角色必须是 student, teacher 或 parent"
+      message: "角色必须是 student, manager 或 parent"
     });
   }
 

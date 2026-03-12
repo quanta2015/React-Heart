@@ -24,7 +24,7 @@ import ClassStackBar from "./chart/ClassStackBar";
 import RadarChart from "./chart/RadarChart";
 import ResultsSection from "@/component/ResultsSection";
 import { generatePsychSuggestion } from "@/util/suggEngineStudent";
-import { exportTeacherStatisticReport } from "@/util/teacherReportPdf";
+import { exportManagerStatisticReport } from "@/util/managerReportPdf";
 
 const { useBreakpoint } = Grid;
 
@@ -117,7 +117,7 @@ const MobileStudentList = ({ students, selectedStudent, onCardClick, pagination,
   );
 };
 
-const Teacher = () => {
+const Manager = () => {
   const screens = useBreakpoint();
   const isMobile = !screens.md;
 
@@ -151,7 +151,7 @@ const Teacher = () => {
       if (filters.grade) params.grade = filters.grade;
       if (filters.class_no) params.class_no = filters.class_no;
 
-      const res = await get(urls.API_TEACHER_STATS_OVERVIEW, params);
+      const res = await get(urls.API_MANAGER_STATS_OVERVIEW, params);
       if (res.code === 200) {
         setOverview(res.data);
       }
@@ -162,7 +162,7 @@ const Teacher = () => {
 
   const fetchGradeStats = async () => {
     try {
-      const res = await get(urls.API_TEACHER_STATS_BY_GRADE);
+      const res = await get(urls.API_MANAGER_STATS_BY_GRADE);
       if (res.code === 200) {
         setGradeStats(res.data || []);
       }
@@ -176,7 +176,7 @@ const Teacher = () => {
       const params = {};
       if (filters.grade) params.grade = filters.grade;
 
-      const res = await get(urls.API_TEACHER_STATS_BY_CLASS, params);
+      const res = await get(urls.API_MANAGER_STATS_BY_CLASS, params);
       if (res.code === 200) {
         setClassStats(res.data || []);
       }
@@ -191,7 +191,7 @@ const Teacher = () => {
       if (filters.grade) params.grade = filters.grade;
       if (filters.class_no) params.class_no = filters.class_no;
 
-      const res = await get(urls.API_TEACHER_STUDENTS, params);
+      const res = await get(urls.API_MANAGER_STUDENTS, params);
       if (res.code === 200) {
         setStudents(res.data || []);
       }
@@ -205,7 +205,7 @@ const Teacher = () => {
       setStudentResultLoading(true);
       setStudentResult(null);
 
-      const res = await get(`${urls.API_TEACHER_STUDENT_RESULT}/${studentId}/result`);
+      const res = await get(`${urls.API_MANAGER_STUDENT_RESULT}/${studentId}/result`);
       if (res.code === 200 && res.data?.result) {
         setStudentResult(res.data.result);
       } else {
@@ -379,7 +379,7 @@ const Teacher = () => {
 
   const fetchStudentResultById = async (studentId) => {
     try {
-      const res = await get(`${urls.API_TEACHER_STUDENT_RESULT}/${studentId}/result`);
+      const res = await get(`${urls.API_MANAGER_STUDENT_RESULT}/${studentId}/result`);
       if (res.code === 200 && res.data?.result) {
         return res.data.result;
       }
@@ -433,10 +433,10 @@ const Teacher = () => {
       const schoolName = students?.[0]?.school_name || selectedStudent?.school_name || "学校";
 
       const [overviewRes, gradeRes, classRes, studentsRes] = await Promise.all([
-        get(urls.API_TEACHER_STATS_OVERVIEW),
-        get(urls.API_TEACHER_STATS_BY_GRADE),
-        get(urls.API_TEACHER_STATS_BY_CLASS),
-        get(urls.API_TEACHER_STUDENTS)
+        get(urls.API_MANAGER_STATS_OVERVIEW),
+        get(urls.API_MANAGER_STATS_BY_GRADE),
+        get(urls.API_MANAGER_STATS_BY_CLASS),
+        get(urls.API_MANAGER_STUDENTS)
       ]);
 
       if (overviewRes?.code !== 200 || gradeRes?.code !== 200 || classRes?.code !== 200 || studentsRes?.code !== 200) {
@@ -456,7 +456,7 @@ const Teacher = () => {
 
       message.loading({
         content: "正在整理学生测评结果，请稍候...",
-        key: "teacher_report_export",
+        key: "manager_report_export",
         duration: 0
       });
 
@@ -472,17 +472,17 @@ const Teacher = () => {
         studentDetailMap
       };
 
-      await exportTeacherStatisticReport(reportData);
+      await exportManagerStatisticReport(reportData);
 
       message.success({
         content: "报告生成完成",
-        key: "teacher_report_export"
+        key: "manager_report_export"
       });
     } catch (error) {
-      console.error("生成教师端报告失败:", error);
+      console.error("生成管理员端报告失败:", error);
       message.error({
         content: "生成报告失败，请稍后重试",
-        key: "teacher_report_export"
+        key: "manager_report_export"
       });
     } finally {
       setGeneratingReport(false);
@@ -511,7 +511,7 @@ const Teacher = () => {
         }
       }}
     >
-      <div className={`${s.teacher} ${isMobile ? s.touchFriendly : ""}`}>
+      <div className={`${s.manager} ${isMobile ? s.touchFriendly : ""}`}>
         <Card className={s.filters}>
           <div className={s.filterBar}>
             <div className={s.filterHeader}>筛选条件</div>
@@ -729,4 +729,4 @@ const Teacher = () => {
   );
 };
 
-export default Teacher;
+export default Manager;

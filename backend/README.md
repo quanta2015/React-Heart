@@ -138,9 +138,9 @@ npm run dev
 INSERT INTO psych_users (username, password, role, school_id, real_name, grade, class_no)
 VALUES ('student001', '123456', 'student', 101, '张三', 7, 1);
 
--- 教师用户 (密码：123456)
+-- 管理员用户 (密码：123456)
 INSERT INTO psych_users (username, password, role, school_id, real_name)
-VALUES ('teacher001', '123456', 'teacher', 101, '李老师');
+VALUES ('manager001', '123456', 'manager', 101, '李管理员');
 
 -- 教育局用户 (密码：123456)
 INSERT INTO psych_users (username, password, role, school_id)
@@ -151,5 +151,5 @@ VALUES ('bureau001', '123456', 'bureau', 101);
 
 1. **JWT Token**: 登录后返回的 token 有效期为 7 天
 2. **密码存储**: 明文存储（仅用于开发/测试环境）
-3. **角色权限**: 支持 student、teacher、bureau 三种角色
+3. **角色权限**: 支持 student、manager、bureau 三种角色
 4. **生产环境**: 请修改 `JWT_SECRET` 为强随机字符串，并考虑使用密码加密

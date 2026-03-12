@@ -1,4 +1,4 @@
-// routes/teacher.js - 教师端路由
+// routes/manager.js - 教师端路由
 const express = require("express");
 const { pool } = require("../db");
 const { requireAuth, requireRole } = require("../middleware/auth");
@@ -6,11 +6,11 @@ const { requireAuth, requireRole } = require("../middleware/auth");
 const router = express.Router();
 
 /**
- * GET /api/teacher/stats/overview
+ * GET /api/manager/stats/overview
  * 获取学校整体统计概览
  * 参数：grade, class_no (可选)
  */
-router.get("/stats/overview", requireAuth, requireRole("teacher"), async (req, res) => {
+router.get("/stats/overview", requireAuth, requireRole("manager"), async (req, res) => {
   const userId = req.user.id;
   const schoolId = req.user.school_id;
   const { grade, class_no } = req.query;
@@ -177,10 +177,10 @@ router.get("/stats/overview", requireAuth, requireRole("teacher"), async (req, r
 });
 
 /**
- * GET /api/teacher/stats/by-grade
+ * GET /api/manager/stats/by-grade
  * 按年级统计
  */
-router.get("/stats/by-grade", requireAuth, requireRole("teacher"), async (req, res) => {
+router.get("/stats/by-grade", requireAuth, requireRole("manager"), async (req, res) => {
   const schoolId = req.user.school_id;
   const conn = await pool.getConnection();
 
@@ -233,11 +233,11 @@ router.get("/stats/by-grade", requireAuth, requireRole("teacher"), async (req, r
 });
 
 /**
- * GET /api/teacher/stats/by-class
+ * GET /api/manager/stats/by-class
  * 按班级统计
  * 参数：grade
  */
-router.get("/stats/by-class", requireAuth, requireRole("teacher"), async (req, res) => {
+router.get("/stats/by-class", requireAuth, requireRole("manager"), async (req, res) => {
   const schoolId = req.user.school_id;
   const { grade } = req.query;
   const conn = await pool.getConnection();
@@ -296,11 +296,11 @@ router.get("/stats/by-class", requireAuth, requireRole("teacher"), async (req, r
 });
 
 /**
- * GET /api/teacher/students
+ * GET /api/manager/students
  * 获取学生列表
  * 参数：grade, class_no, keyword
  */
-router.get("/students", requireAuth, requireRole("teacher"), async (req, res) => {
+router.get("/students", requireAuth, requireRole("manager"), async (req, res) => {
   const schoolId = req.user.school_id;
   const { grade, class_no, keyword } = req.query;
   const conn = await pool.getConnection();
@@ -359,10 +359,10 @@ router.get("/students", requireAuth, requireRole("teacher"), async (req, res) =>
 });
 
 /**
- * GET /api/teacher/student/:studentId/result
+ * GET /api/manager/student/:studentId/result
  * 获取指定学生的测试结果
  */
-router.get("/student/:studentId/result", requireAuth, requireRole("teacher"), async (req, res) => {
+router.get("/student/:studentId/result", requireAuth, requireRole("manager"), async (req, res) => {
   const schoolId = req.user.school_id;
   const { studentId } = req.params;
   const conn = await pool.getConnection();

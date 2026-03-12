@@ -19,8 +19,8 @@ const roleOptions = [
     icon: <BookOutlined />
   },
   {
-    key: "teacher",
-    label: "教师",
+    key: "manager",
+    label: "管理员",
     desc: "管理学生测评任务，查看统计结果并开展干预工作",
     icon: <TeamOutlined />
   },
@@ -50,7 +50,7 @@ const Login = () => {
       const { username, password } = values;
 
       const preloadTargetPage = () =>
-        selectedRole === "teacher" ? import("@/app/teacher") : import("@/app/index");
+        selectedRole === "manager" ? import("@/app/manager") : import("@/app/index");
       preloadTargetPage().catch(() => {});
 
       setLoading(true);

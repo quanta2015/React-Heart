@@ -1563,7 +1563,7 @@ const buildFileName = (reportData) => {
   return `${schoolName}_心理测评统计分析报告_${formatDateTimeFile(reportData.generatedAt)}.pdf`;
 };
 
-export const exportTeacherStatisticReport = async (reportData) => {
+export const exportManagerStatisticReport = async (reportData) => {
   try {
     const pdf = new jsPDF("p", "mm", "a4");
     registerPdfFonts(pdf);

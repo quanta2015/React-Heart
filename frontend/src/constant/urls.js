@@ -17,12 +17,12 @@ export const API_PARENT_TEST_CURRENT = API_SERVER + "/api/parent/test/current";
 export const API_PARENT_TEST_SUBMIT = API_SERVER + "/api/parent/test/submit";
 export const API_PARENT_RESULT = API_SERVER + "/api/parent/result";
 
-// 教师端 API
-export const API_TEACHER_STATS_OVERVIEW = API_SERVER + "/api/teacher/stats/overview";
-export const API_TEACHER_STATS_BY_GRADE = API_SERVER + "/api/teacher/stats/by-grade";
-export const API_TEACHER_STATS_BY_CLASS = API_SERVER + "/api/teacher/stats/by-class";
-export const API_TEACHER_STUDENTS = API_SERVER + "/api/teacher/students";
-export const API_TEACHER_STUDENT_RESULT = API_SERVER + "/api/teacher/student";
+// 管理员端 API
+export const API_MANAGER_STATS_OVERVIEW = API_SERVER + "/api/manager/stats/overview";
+export const API_MANAGER_STATS_BY_GRADE = API_SERVER + "/api/manager/stats/by-grade";
+export const API_MANAGER_STATS_BY_CLASS = API_SERVER + "/api/manager/stats/by-class";
+export const API_MANAGER_STUDENTS = API_SERVER + "/api/manager/students";
+export const API_MANAGER_STUDENT_RESULT = API_SERVER + "/api/manager/student";
 
 // 教育局端 API
 export const API_BUREAU_SCHOOLS = API_SERVER + "/api/bureau/schools";

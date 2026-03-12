@@ -6,7 +6,7 @@ const path = require("path");
 // 导入路由
 const authRoutes = require("./routes/auth");
 const studentRoutes = require("./routes/student");
-const teacherRoutes = require("./routes/teacher");
+const managerRoutes = require("./routes/manager");
 const parentRoutes = require("./routes/parent");
 
 const app = express();
@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // API 路由挂载
 app.use("/api/auth", authRoutes);
 app.use("/api/student", studentRoutes);
-app.use("/api/teacher", teacherRoutes);
+app.use("/api/manager", managerRoutes);
 app.use("/api/parent", parentRoutes);
 
 // 兼容旧版登录接口

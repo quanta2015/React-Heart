@@ -7,7 +7,7 @@ import Nav from "@/component/Nav";
 const Index = lazy(() => import("./app/index"));
 const Login = lazy(() => import("./app/login"));
 const Assessment = lazy(() => import("./app/assessment"));
-const Teacher = lazy(() => import("./app/teacher"));
+const Manager = lazy(() => import("./app/manager"));
 
 const Loading = () => (
   <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
@@ -81,8 +81,8 @@ function App() {
             path="/"
             element={
               isAuthenticated ? (
-                userRole === "teacher" ? (
-                  <Navigate to="/teacher" replace />
+                userRole === "manager" ? (
+                  <Navigate to="/manager" replace />
                 ) : (
                   <Layout>
                     <Index />
@@ -118,11 +118,11 @@ function App() {
             }
           />
           <Route
-            path="/teacher"
+            path="/manager"
             element={
               isAuthenticated ? (
                 <Layout>
-                  <Teacher />
+                  <Manager />
                 </Layout>
               ) : (
                 <Navigate to="/login" replace />
