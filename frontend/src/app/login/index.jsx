@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { Form, Input, Button, message, Typography, Card } from "antd";
-import { UserOutlined, LockOutlined, TeamOutlined, BookOutlined, HomeOutlined } from "@ant-design/icons";
+import { UserOutlined, LockOutlined, TeamOutlined, BookOutlined, HomeOutlined, SolutionOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { post } from "@/util/request";
 import token from "@/util/token.js";
@@ -17,6 +17,12 @@ const roleOptions = [
     label: "学生",
     desc: "参与学生心理测评，查看个人健康状态与反馈建议",
     icon: <BookOutlined />
+  },
+  {
+    key: "teacher",
+    label: "教师",
+    desc: "参与教师心理测评，评估职业倦怠与心理健康状态",
+    icon: <SolutionOutlined />
   },
   {
     key: "manager",

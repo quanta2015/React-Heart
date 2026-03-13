@@ -8,45 +8,45 @@ const router = express.Router();
 /**
  * GET /api/manager/stats/overview
  * 获取学校整体统计概览
- * 参数：grade, class_no (可选)
+ * 参数：grade, class_no, role (可选)
  */
 router.get("/stats/overview", requireAuth, requireRole("manager"), async (req, res) => {
   const userId = req.user.id;
   const schoolId = req.user.school_id;
-  const { grade, class_no } = req.query;
+  const { grade, class_no, role = "student" } = req.query;
   const conn = await pool.getConnection();
 
   try {
-    // 获取学生总数
-    let studentQuery = `SELECT COUNT(*) AS total FROM psych_users WHERE role = 'student' AND school_id = ?`;
-    let studentParams = [schoolId];
+    // 获取用户总数
+    let userQuery = `SELECT COUNT(*) AS total FROM psych_users WHERE role = ? AND school_id = ?`;
+    let userParams = [role, schoolId];
 
-    if (grade) {
-      studentQuery += ` AND grade = ?`;
-      studentParams.push(grade);
+    if (grade && role === "student") {
+      userQuery += ` AND grade = ?`;
+      userParams.push(grade);
     }
-    if (class_no) {
-      studentQuery += ` AND class_no = ?`;
-      studentParams.push(class_no);
+    if (class_no && role === "student") {
+      userQuery += ` AND class_no = ?`;
+      userParams.push(class_no);
     }
 
-    const [students] = await conn.query(studentQuery, studentParams);
-    const totalStudents = students[0].total;
+    const [users] = await conn.query(userQuery, userParams);
+    const totalUsers = users[0].total;
 
-    // 获取已完成测试的学生数
+    // 获取已完成测试的用户数
     let finishedQuery = `
       SELECT COUNT(DISTINCT u.id) AS finished
       FROM psych_users u
       JOIN psych_tests t ON t.user_id = u.id
-      WHERE u.role = 'student' AND u.school_id = ? AND t.status = 'finished'
+      WHERE u.role = ? AND u.school_id = ? AND t.status = 'finished'
     `;
-    let finishedParams = [schoolId];
+    let finishedParams = [role, schoolId];
 
-    if (grade) {
+    if (grade && role === "student") {
       finishedQuery += ` AND u.grade = ?`;
       finishedParams.push(grade);
     }
-    if (class_no) {
+    if (class_no && role === "student") {
       finishedQuery += ` AND u.class_no = ?`;
       finishedParams.push(class_no);
     }
@@ -60,15 +60,15 @@ router.get("/stats/overview", requireAuth, requireRole("manager"), async (req, r
       FROM psych_results r
       JOIN psych_tests t ON t.test_id = r.test_id
       JOIN psych_users u ON u.id = t.user_id
-      WHERE u.school_id = ?
+      WHERE u.school_id = ? AND u.role = ?
     `;
-    let riskParams = [schoolId];
+    let riskParams = [schoolId, role];
 
-    if (grade) {
+    if (grade && role === "student") {
       riskQuery += ` AND u.grade = ?`;
       riskParams.push(grade);
     }
-    if (class_no) {
+    if (class_no && role === "student") {
       riskQuery += ` AND u.class_no = ?`;
       riskParams.push(class_no);
     }
@@ -83,15 +83,15 @@ router.get("/stats/overview", requireAuth, requireRole("manager"), async (req, r
       FROM psych_results r
       JOIN psych_tests t ON t.test_id = r.test_id
       JOIN psych_users u ON u.id = t.user_id
-      WHERE u.school_id = ?
+      WHERE u.school_id = ? AND u.role = ?
     `;
-    let domainParams = [schoolId];
+    let domainParams = [schoolId, role];
 
-    if (grade) {
+    if (grade && role === "student") {
       domainQuery += ` AND u.grade = ?`;
       domainParams.push(grade);
     }
-    if (class_no) {
+    if (class_no && role === "student") {
       domainQuery += ` AND u.class_no = ?`;
       domainParams.push(class_no);
     }
@@ -144,8 +144,8 @@ router.get("/stats/overview", requireAuth, requireRole("manager"), async (req, r
       data: {
         completion: {
           finished: finishedCount,
-          total_students: totalStudents,
-          rate: totalStudents > 0 ? (finishedCount / totalStudents).toFixed(2) : 0
+          total_users: totalUsers,
+          rate: totalUsers > 0 ? (finishedCount / totalUsers).toFixed(2) : 0
         },
         risk_dist: riskDist.reduce(
           (acc, row) => {
@@ -435,6 +435,288 @@ router.get("/student/:studentId/result", requireAuth, requireRole("manager"), as
     });
   } catch (err) {
     console.error("获取学生结果错误:", err);
+    res.status(500).json({
+      code: 500,
+      error: "INTERNAL_ERROR",
+      message: err.message
+    });
+  } finally {
+    conn.release();
+  }
+});
+
+/**
+ * GET /api/manager/teachers
+ * 获取教师列表
+ * 参数：keyword
+ */
+router.get("/teachers", requireAuth, requireRole("manager"), async (req, res) => {
+  const schoolId = req.user.school_id;
+  const { keyword } = req.query;
+  const conn = await pool.getConnection();
+
+  try {
+    let query = `
+      SELECT
+        u.id,
+        u.username,
+        u.real_name,
+        u.school_name,
+        CASE WHEN t.status = 'finished' THEN 1 ELSE 0 END AS has_test,
+        r.risk_level,
+        r.risk_score,
+        t.finished_at
+      FROM psych_users u
+      LEFT JOIN psych_tests t ON t.user_id = u.id AND t.status = 'finished'
+      LEFT JOIN psych_results r ON r.test_id = t.test_id
+      WHERE u.role = 'teacher' AND u.school_id = ?
+    `;
+    let params = [schoolId];
+
+    if (keyword) {
+      query += ` AND (u.real_name LIKE ? OR u.username LIKE ?)`;
+      params.push(`%${keyword}%`, `%${keyword}%`);
+    }
+
+    query += ` ORDER BY u.real_name`;
+
+    const [rows] = await conn.query(query, params);
+
+    res.json({
+      code: 200,
+      data: rows
+    });
+  } catch (err) {
+    console.error("获取教师列表错误:", err);
+    res.status(500).json({
+      code: 500,
+      error: "INTERNAL_ERROR",
+      message: err.message
+    });
+  } finally {
+    conn.release();
+  }
+});
+
+/**
+ * GET /api/manager/teacher/:teacherId/result
+ * 获取指定教师的测试结果
+ */
+router.get("/teacher/:teacherId/result", requireAuth, requireRole("manager"), async (req, res) => {
+  const schoolId = req.user.school_id;
+  const { teacherId } = req.params;
+  const conn = await pool.getConnection();
+
+  try {
+    // 验证教师属于同一学校
+    const [teachers] = await conn.query(
+      "SELECT school_id, real_name, school_name FROM psych_users WHERE id = ? AND role = 'teacher'",
+      [teacherId]
+    );
+
+    if (teachers.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        error: "NOT_FOUND",
+        message: "教师不存在"
+      });
+    }
+
+    if (teachers[0].school_id !== schoolId) {
+      return res.status(403).json({
+        code: 403,
+        error: "FORBIDDEN",
+        message: "无权访问该教师数据"
+      });
+    }
+
+    // 获取测试结果
+    const [results] = await conn.query(
+      `
+      SELECT tr.report_json, tr.created_at, t.finished_at
+      FROM psych_teacher_results tr
+      JOIN psych_tests t ON t.test_id = tr.test_id
+      WHERE t.user_id = ?
+      ORDER BY tr.created_at DESC
+      LIMIT 1
+      `,
+      [teacherId]
+    );
+
+    if (results.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        error: "NOT_FOUND",
+        message: "该教师尚未完成测试"
+      });
+    }
+
+    const row = results[0];
+    let result = row.report_json;
+    if (typeof result === "string") {
+      try {
+        result = JSON.parse(result);
+      } catch (e) {
+        result = {};
+      }
+    }
+
+    res.json({
+      code: 200,
+      data: {
+        teacher: {
+          id: teacherId,
+          real_name: teachers[0].real_name
+        },
+        result: {
+          ...result,
+          finished_at: row.finished_at || row.created_at
+        }
+      }
+    });
+  } catch (err) {
+    console.error("获取教师结果错误:", err);
+    res.status(500).json({
+      code: 500,
+      error: "INTERNAL_ERROR",
+      message: err.message
+    });
+  } finally {
+    conn.release();
+  }
+});
+
+/**
+ * GET /api/manager/parents
+ * 获取家长列表
+ * 参数：keyword
+ */
+router.get("/parents", requireAuth, requireRole("manager"), async (req, res) => {
+  const schoolId = req.user.school_id;
+  const { keyword } = req.query;
+  const conn = await pool.getConnection();
+
+  try {
+    let query = `
+      SELECT
+        u.id,
+        u.username,
+        u.real_name,
+        u.school_name,
+        CASE WHEN t.status = 'finished' THEN 1 ELSE 0 END AS has_test,
+        r.risk_level,
+        r.risk_score,
+        t.finished_at
+      FROM psych_users u
+      LEFT JOIN psych_tests t ON t.user_id = u.id AND t.status = 'finished'
+      LEFT JOIN psych_results r ON r.test_id = t.test_id
+      WHERE u.role = 'parent' AND u.school_id = ?
+    `;
+    let params = [schoolId];
+
+    if (keyword) {
+      query += ` AND (u.real_name LIKE ? OR u.username LIKE ?)`;
+      params.push(`%${keyword}%`, `%${keyword}%`);
+    }
+
+    query += ` ORDER BY u.real_name`;
+
+    const [rows] = await conn.query(query, params);
+
+    res.json({
+      code: 200,
+      data: rows
+    });
+  } catch (err) {
+    console.error("获取家长列表错误:", err);
+    res.status(500).json({
+      code: 500,
+      error: "INTERNAL_ERROR",
+      message: err.message
+    });
+  } finally {
+    conn.release();
+  }
+});
+
+/**
+ * GET /api/manager/parent/:parentId/result
+ * 获取指定家长的测试结果
+ */
+router.get("/parent/:parentId/result", requireAuth, requireRole("manager"), async (req, res) => {
+  const schoolId = req.user.school_id;
+  const { parentId } = req.params;
+  const conn = await pool.getConnection();
+
+  try {
+    // 验证家长属于同一学校
+    const [parents] = await conn.query(
+      "SELECT school_id, real_name, school_name FROM psych_users WHERE id = ? AND role = 'parent'",
+      [parentId]
+    );
+
+    if (parents.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        error: "NOT_FOUND",
+        message: "家长不存在"
+      });
+    }
+
+    if (parents[0].school_id !== schoolId) {
+      return res.status(403).json({
+        code: 403,
+        error: "FORBIDDEN",
+        message: "无权访问该家长数据"
+      });
+    }
+
+    // 获取测试结果
+    const [results] = await conn.query(
+      `
+      SELECT pr.report_json, pr.created_at, t.finished_at
+      FROM psych_parent_results pr
+      JOIN psych_tests t ON t.test_id = pr.test_id
+      WHERE t.user_id = ?
+      ORDER BY pr.created_at DESC
+      LIMIT 1
+      `,
+      [parentId]
+    );
+
+    if (results.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        error: "NOT_FOUND",
+        message: "该家长尚未完成测试"
+      });
+    }
+
+    const row = results[0];
+    let result = row.report_json;
+    if (typeof result === "string") {
+      try {
+        result = JSON.parse(result);
+      } catch (e) {
+        result = {};
+      }
+    }
+
+    res.json({
+      code: 200,
+      data: {
+        parent: {
+          id: parentId,
+          real_name: parents[0].real_name
+        },
+        result: {
+          ...result,
+          finished_at: row.finished_at || row.created_at
+        }
+      }
+    });
+  } catch (err) {
+    console.error("获取家长结果错误:", err);
     res.status(500).json({
       code: 500,
       error: "INTERNAL_ERROR",

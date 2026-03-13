@@ -17,6 +17,12 @@ export const API_PARENT_TEST_CURRENT = API_SERVER + "/api/parent/test/current";
 export const API_PARENT_TEST_SUBMIT = API_SERVER + "/api/parent/test/submit";
 export const API_PARENT_RESULT = API_SERVER + "/api/parent/result";
 
+// 教师端 API
+export const API_TEACHER_TEST_GENERATE = API_SERVER + "/api/teacher/test/generate";
+export const API_TEACHER_TEST_CURRENT = API_SERVER + "/api/teacher/test/current";
+export const API_TEACHER_TEST_SUBMIT = API_SERVER + "/api/teacher/test/submit";
+export const API_TEACHER_RESULT = API_SERVER + "/api/teacher/result";
+
 // 管理员端 API
 export const API_MANAGER_STATS_OVERVIEW = API_SERVER + "/api/manager/stats/overview";
 export const API_MANAGER_STATS_BY_GRADE = API_SERVER + "/api/manager/stats/by-grade";

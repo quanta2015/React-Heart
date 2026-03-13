@@ -12,6 +12,7 @@ const Assessment = () => {
   const hasSubmittedRef = useRef(false);
   const currentUser = token.loadUser();
   const isParent = currentUser?.role === "parent";
+  const isTeacher = currentUser?.role === "teacher";
 
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -104,7 +105,9 @@ const Assessment = () => {
         }))
       };
 
-      const submitApi = isParent ? urls.API_PARENT_TEST_SUBMIT : urls.API_STUDENT_TEST_SUBMIT;
+      const submitApi = isTeacher ? urls.API_TEACHER_TEST_SUBMIT :
+                    isParent ? urls.API_PARENT_TEST_SUBMIT :
+                    urls.API_STUDENT_TEST_SUBMIT;
       const res = await post(submitApi, submitData);
 
       if (res.code === 200) {

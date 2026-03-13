@@ -14,7 +14,8 @@ import {
   Button,
   ConfigProvider,
   Drawer,
-  Grid
+  Grid,
+  Tabs
 } from "antd";
 import { get } from "@/util/request";
 import * as urls from "@/constant/urls";
@@ -121,6 +122,7 @@ const Manager = () => {
   const screens = useBreakpoint();
   const isMobile = !screens.md;
 
+  const [activeTab, setActiveTab] = useState("student");
   const [loading, setLoading] = useState(true);
   const [overview, setOverview] = useState(null);
   const [gradeStats, setGradeStats] = useState([]);
@@ -512,7 +514,19 @@ const Manager = () => {
       }}
     >
       <div className={`${s.manager} ${isMobile ? s.touchFriendly : ""}`}>
-        <Card className={s.filters}>
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) => {
+            setActiveTab(key);
+            setFilters({ grade: undefined, class_no: undefined });
+          }}
+          items={[
+            {
+              key: "student",
+              label: "学生统计",
+              children: (
+                <>
+                  <Card className={s.filters}>
           <div className={s.filterBar}>
             <div className={s.filterHeader}>筛选条件</div>
 
@@ -724,6 +738,29 @@ const Manager = () => {
             )}
           </Modal>
         )}
+                </>
+              )
+            },
+            {
+              key: "teacher",
+              label: "教师统计",
+              children: (
+                <Card>
+                  <Empty description="教师统计功能开发中，敬请期待" />
+                </Card>
+              )
+            },
+            {
+              key: "parent",
+              label: "家长统计",
+              children: (
+                <Card>
+                  <Empty description="家长统计功能开发中，敬请期待" />
+                </Card>
+              )
+            }
+          ]}
+        />
       </div>
     </ConfigProvider>
   );

@@ -1,0 +1,415 @@
+// TeacherResultsSection 独立样式
+
+// 颜色变量
+@primary: #13b6ec;
+@primary-light: rgba(19, 182, 236, 0.1);
+@primary-border: rgba(19, 182, 236, 0.2);
+@bg-light: #f6f8f8;
+@text-primary: #1e293b;
+@text-secondary: #64748b;
+@card-bg-light: #ffffff;
+
+.teacherResults {
+  padding: 0 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.listCard {
+  background: #fff;
+  border: 1px solid #d8e7ee;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.listTitle {
+  font-size: 20px;
+  color: #1e293b;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.listSubtitle {
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.threeColLayout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.panel {
+  border: 1px solid #dbe7f3;
+  border-radius: 10px;
+  background: #fbfdff;
+  padding: 12px;
+}
+
+.metricsCol {
+  // display: grid;
+  // gap: 10px;
+}
+
+.radarCol {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.metricCard {
+  height: 100%;
+  border-radius: 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.metricTitle {
+  color: #64748b;
+  font-size: 20px;
+  margin-bottom: 30px;
+}
+
+.metricCircle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.metricDesc {
+  font-size: 12px;
+  color: @text-secondary;
+  line-height: 1.6;
+  margin-top: 15px;
+  white-space: pre-wrap; /* 保持换行 */
+}
+
+.scoreTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.scoreTable th,
+.scoreTable td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 8px 6px;
+  text-align: left;
+  font-size: 13px;
+}
+
+.scoreTable th {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.scoreTable tr:last-child td {
+  border-bottom: none;
+}
+
+.headerCard {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  border: none;
+
+  :global {
+    .ant-card-body {
+      padding: 24px;
+    }
+  }
+}
+
+.titleSection {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+.indexCard {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  height: 100%;
+}
+
+.indexTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: @text-primary;
+  margin-bottom: 24px;
+}
+
+.indexCircle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.indexContent {
+  text-align: center;
+}
+
+.indexValue {
+  font-size: 36px;
+  font-weight: 700;
+  color: @text-primary;
+  line-height: 1;
+}
+
+.indexLabel {
+  font-size: 14px;
+  color: @text-secondary;
+  margin-top: 8px;
+}
+
+.indexDesc {
+  font-size: 13px;
+  color: @text-secondary;
+  line-height: 1.6;
+}
+
+.radarCard {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 24px;
+  height: 100%;
+}
+
+.radarTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: @text-primary;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.tableCard {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 20px;
+  height: 100%;
+}
+
+.tableTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: @text-primary;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.tableWrap {
+  max-height: 360px;
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  color: @text-primary;
+
+  th,
+  td {
+    padding: 8px 6px;
+    text-align: left;
+    border-bottom: 1px solid #eef2f7;
+    vertical-align: middle;
+  }
+
+  th {
+    font-weight: 600;
+    color: @text-secondary;
+    background: #f8fafc;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  td:nth-child(2) {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    width: 64px;
+  }
+
+  td:nth-child(3) {
+    width: 80px;
+  }
+}
+
+.warningCard {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  border: 1px solid #ff9800;
+
+  :global {
+    .ant-card-head {
+      background-color: #fff3e0;
+      border-bottom-color: #ff9800;
+    }
+  }
+}
+
+.warningItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 14px;
+  color: @text-primary;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
+  }
+}
+
+.domainCard {
+  margin-bottom: 16px;
+  border-radius: 12px;
+}
+
+.domainItem {
+  background-color: @bg-light;
+  border-radius: 8px;
+  padding: 16px;
+  height: 100%;
+}
+
+.domainHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.domainLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: @text-primary;
+}
+
+.domainScore {
+  font-size: 28px;
+  font-weight: 700;
+  color: @primary;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.domainWeight {
+  font-size: 12px;
+  color: @text-secondary;
+  text-align: center;
+}
+
+.strengthCard,
+.concernCard {
+  height: 100%;
+  border-radius: 12px;
+
+  :global {
+    .ant-card-head {
+      border-bottom: 2px solid;
+    }
+  }
+}
+
+.strengthCard {
+  :global {
+    .ant-card-head {
+      border-color: #52c41a;
+    }
+  }
+}
+
+.concernCard {
+  :global {
+    .ant-card-head {
+      border-color: #fa8c16;
+    }
+  }
+}
+
+.list {
+  margin: 0;
+  padding-left: 20px;
+
+  li {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: @text-primary;
+    line-height: 1.6;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.suggestionCard {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background-color: #e3f2fd;
+  border: 1px solid #2196f3;
+
+  :global {
+    .ant-card-head {
+      background-color: #bbdefb;
+      border-bottom-color: #2196f3;
+    }
+  }
+}
+
+.suggestionList {
+  margin: 0;
+  padding-left: 20px;
+
+  li {
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: @text-primary;
+    line-height: 1.8;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// 响应式适配
+@media (max-width: 768px) {
+  .teacherResults {
+    padding: 0 8px 60px;
+  }
+
+  .threeColLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .indexValue {
+    font-size: 28px;
+  }
+}

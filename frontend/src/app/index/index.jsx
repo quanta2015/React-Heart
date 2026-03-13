@@ -8,6 +8,7 @@ import s from "./index.module.less";
 
 const ResultsSection = lazy(() => import("@/component/ResultsSection"));
 const ParentResultsSection = lazy(() => import("@/component/ParentResultsSection"));
+const TeacherResultsSection = lazy(() => import("@/component/TeacherResultsSection"));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -19,15 +20,24 @@ const Index = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const isStudent = currentUser?.role === "student";
   const isParent = currentUser?.role === "parent";
+  const isTeacher = currentUser?.role === "teacher";
 
   const endpointMap = useMemo(
     () => ({
-      current: isParent ? urls.API_PARENT_TEST_CURRENT : urls.API_STUDENT_TEST_CURRENT,
-      generate: isParent ? urls.API_PARENT_TEST_GENERATE : urls.API_STUDENT_TEST_GENERATE,
-      result: isParent ? urls.API_PARENT_RESULT : urls.API_STUDENT_RESULT,
-      assessmentRoute: isParent ? "/parent/assessment" : "/student/assessment"
+      current: isTeacher ? urls.API_TEACHER_TEST_CURRENT :
+              isParent ? urls.API_PARENT_TEST_CURRENT :
+              urls.API_STUDENT_TEST_CURRENT,
+      generate: isTeacher ? urls.API_TEACHER_TEST_GENERATE :
+                isParent ? urls.API_PARENT_TEST_GENERATE :
+                urls.API_STUDENT_TEST_GENERATE,
+      result: isTeacher ? urls.API_TEACHER_RESULT :
+              isParent ? urls.API_PARENT_RESULT :
+              urls.API_STUDENT_RESULT,
+      assessmentRoute: isTeacher ? "/teacher/assessment" :
+                       isParent ? "/parent/assessment" :
+                       "/student/assessment"
     }),
-    [isParent]
+    [isTeacher, isParent]
   );
 
   useEffect(() => {
@@ -45,7 +55,7 @@ const Index = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (!isStudent && !isParent) return;
+    if (!isStudent && !isParent && !isTeacher) return;
 
     const fetchResult = async () => {
       try {
@@ -72,7 +82,7 @@ const Index = () => {
     };
 
     fetchResult();
-  }, [currentUser, refreshKey, isStudent, isParent, endpointMap.result]);
+  }, [currentUser, refreshKey, isStudent, isParent, isTeacher, endpointMap.result]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -150,17 +160,27 @@ const Index = () => {
         </div>
       )}
 
-      {!loading && (isStudent || isParent) && (
+      {!loading && (isStudent || isParent || isTeacher) && (
         <div className={s.studentIndex}>
           <div className={s.welcomeBanner}>
-            <p className={s.greeting}>{isParent ? "家长，您好！" : "同学，你好！"}</p>
+            <p className={s.greeting}>
+              {isTeacher ? "老师，您好！" :
+               isParent ? "家长，您好！" :
+               "同学，你好！"}
+            </p>
             <p className={s.subtitle}>
-              {isParent ? "完成家长心理测评，获取家庭教养与沟通建议" : "保持好心情，遇见更好的自己"}
+              {isTeacher ? "完成教师心理测评，评估职业倦怠与心理健康状态" :
+               isParent ? "完成家长心理测评，获取家庭教养与沟通建议" :
+               "保持好心情，遇见更好的自己"}
             </p>
           </div>
 
           {testStatus === "finished" && result ? (
-            isStudent ? (
+            isTeacher ? (
+              <Suspense fallback={resultsLoadingNode}>
+                <TeacherResultsSection result={result} user={currentUser} />
+              </Suspense>
+            ) : isStudent ? (
               <div className={s.completedCard}>
                 <div className={s.completedIcon}>✅</div>
                 <h2 className={s.completedTitle}>测评已完成</h2>
@@ -181,11 +201,17 @@ const Index = () => {
                 <span className={s.psychologyIcon}></span>
               </div>
               <div className={s.cardContent}>
-                <p className={s.cardTitle}>{isParent ? "开始家长心理测评" : "开始心理健康测评"}</p>
+                <p className={s.cardTitle}>
+                  {isTeacher ? "开始教师心理测评" :
+                   isParent ? "开始家长心理测评" :
+                   "开始心理健康测评"}
+                </p>
                 <p className={s.cardDesc}>
                   共 150 题，预计耗时 20 分钟
                   <br />
-                  {isParent ? "评估家庭心理环境与教养方式，获取专业建议" : "了解你的心理状态，获取专业指导"}
+                  {isTeacher ? "评估教师职业倦怠与心理健康状态，获取专业建议" :
+                   isParent ? "评估家庭心理环境与教养方式，获取专业建议" :
+                   "了解你的心理状态，获取专业指导"}
                 </p>
                 <button className={s.startBtn} onClick={handleStartTest}>
                   立即开始
@@ -196,7 +222,7 @@ const Index = () => {
         </div>
       )}
 
-      {!loading && currentUser && !isStudent && !isParent && (
+      {!loading && currentUser && !isStudent && !isParent && !isTeacher && (
         <div className={s.otherIndex}>
           <div className={s.noTestCard}>
             <div className={s.noTestIcon}>👋</div>

@@ -8,6 +8,7 @@ const authRoutes = require("./routes/auth");
 const studentRoutes = require("./routes/student");
 const managerRoutes = require("./routes/manager");
 const parentRoutes = require("./routes/parent");
+const teacherRoutes = require("./routes/teacher");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/manager", managerRoutes);
 app.use("/api/parent", parentRoutes);
+app.use("/api/teacher", teacherRoutes);
 
 // 兼容旧版登录接口
 app.post("/api/login", (req, res, next) => {
